@@ -13,7 +13,7 @@ function Header() {
         {/*Logo */}
         <Link to="/" className="self-center whitespace-nowrap">
         <Navbar.Brand as={"div"}>
-        <img src="/assets/full-logo.png" className="mr-3 h-9 sm:h-14" alt="Logo" />
+        <img src="/assets/full-logo.png" className="mr-3 h-8 sm:h-12" alt="Logo" />
       </Navbar.Brand>
         </Link>
 
@@ -34,7 +34,8 @@ function Header() {
                 <FaMoon/>
             </Button>
             <Link to="/about">
-                <Button className="bg-custom-orange hover:!bg-custom-dark-orange">ABOUT ME</Button>
+            <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium">About me</button>
+                {/* <Button className="bg-custom-orange hover:!bg-custom-dark-orange">ABOUT ME</Button> */}
             </Link>
             <Navbar.Toggle/>
         </div>
