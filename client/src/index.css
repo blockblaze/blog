@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* styles.css */
+input:focus {
+
+    
+  }
+
+  .focus\:ring-cyan-500:focus {
+    --tw-ring-opacity: 1 !important;
+    --tw-ring-color: hsl(24,98%,58%) !important;
+}
+
+.focus\:border-cyan-500:focus {
+    border-color: transparent !important;
+}
