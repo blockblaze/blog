@@ -34,7 +34,7 @@ function Header() {
                 <FaMoon/>
             </Button>
             <Link to="/about">
-            <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium">About me</button>
+            <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium">About</button>
                 {/* <Button className="bg-custom-orange hover:!bg-custom-dark-orange">ABOUT ME</Button> */}
             </Link>
             <Navbar.Toggle/>

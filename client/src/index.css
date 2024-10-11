@@ -14,5 +14,5 @@ input:focus {
 }
 
 .focus\:border-cyan-500:focus {
-    border-color: transparent !important;
+    border-color: hsl(24,98%,58%) !important;
 }
