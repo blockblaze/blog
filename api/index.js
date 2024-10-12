@@ -1,11 +1,15 @@
 import express from "express";
 import { dbconnection } from "./config/dbconnect.js";
 import  contactRoute from "./routes/contacts.route.js";
+import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
 
 dbconnection.connect();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/contact",contactRoute)
 
