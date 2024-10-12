@@ -12,10 +12,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@codedipper/random-code": "^3.1.0",
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "validator": "^13.12.0"
   }
 }

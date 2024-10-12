@@ -12,6 +12,6 @@ message: "Too many requests from this IP, please try again later.",
 
 const router = express.Router();
 
-router.post("/sendContact",rateLimiter,registEmail)
+router.post("/registEmail",rateLimiter,registEmail)
 
 export default router;

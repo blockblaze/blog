@@ -1,8 +1,9 @@
 import express from "express";
-import { dbconnection } from "./config/dbconnect.js";
-import  contactRoute from "./routes/contacts.route.js";
 import bodyParser from "body-parser";
 
+import { dbconnection } from "./config/dbconnect.js";
+import  contactRoute from "./routes/contacts.route.js";
+import registRoute from "./routes/regist.route.js"
 const app = express();
 const port = 3000;
 
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/contact",contactRoute)
+app.use("/api",registRoute)
 
 // app.get("/", function (req, res) {
 //   dbconnection.query(

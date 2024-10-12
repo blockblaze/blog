@@ -1,7 +1,7 @@
 import { dbconnection } from "../config/dbconnect.js";
 
 export const sendContact  = (req,res)=>{
-  const {name , email , subject , message} = req.body;
+  let {name , email , subject , message} = req.body;
   if(!name || !email || !subject || !message) return res.status(400).json({sucess:false,statusCode:400,message:"All fields are required"})
     const addQuery = "INSERT INTO contacts(contact_name,contact_email,contact_subject,contact_message) VALUES(?,?,?,?)"
     const addQueryValues = [name,email,subject,message];
