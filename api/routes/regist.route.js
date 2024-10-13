@@ -1,6 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { registEmail } from "../controllers/regist.controller.js";
+import { registEmail, unregistEmail } from "../controllers/regist.controller.js";
 
 const rateLimiter = rateLimit({
 windowMs: 6 * 60 * 60 * 1000, // 6 hours
@@ -13,5 +13,6 @@ message: "Too many requests from this IP, please try again later.",
 const router = express.Router();
 
 router.post("/registEmail",rateLimiter,registEmail)
+router.post("/unregistEmail",rateLimiter,unregistEmail)
 
 export default router;
