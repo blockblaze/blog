@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import { dbconnection } from "./config/dbconnect.js";
 import  contactRoute from "./routes/contacts.route.js";
 import registRoute from "./routes/regist.route.js"
+import authRoute from "./routes/auth.route.js"
 const app = express();
 const port = 3000;
 
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/contact",contactRoute)
 app.use("/api",registRoute)
+app.use("/api",authRoute)
 
 // app.get("/", function (req, res) {
 //   dbconnection.query(

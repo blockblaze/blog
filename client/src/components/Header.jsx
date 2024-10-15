@@ -34,11 +34,11 @@ function Header() {
             <AiOutlineSearch></AiOutlineSearch>
         </Button>
         <div className="flex gap-3 md:order-2">
-            <Button className="w-12 h-10 hidden sm:inline" color="gray" pill onClick={()=>dispatch(toggleTheme())}>
+            <Button className="w-12 h-10" color="gray" pill onClick={()=>dispatch(toggleTheme())}>
                 {theme === "light"? <FaSun/>: <FaMoon/>}
             </Button>
             <Link to="/about">
-            <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium">About</button>
+            <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium hidden sm:inline">About</button>
                 {/* <Button className="bg-custom-orange hover:!bg-custom-dark-orange">ABOUT ME</Button> */}
             </Link>
             <Navbar.Toggle/>
