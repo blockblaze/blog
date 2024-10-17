@@ -3,9 +3,19 @@ import { useEffect, useState } from "react";
 import Login from "../components/Login";
 import { DashSidebar } from "../components/DashSidebar";
 import { DashMain } from "../components/DashMain";
+import { useLocation } from "react-router-dom";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
+  const location = useLocation();
+  const [tab, setTab] = useState('');
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const tabFromUrl = urlParams.get('tab');
+    if (tabFromUrl) {
+      setTab(tabFromUrl);
+    }
+  }, [location.search]);
 
   function handleLoginSuccess(){
     setIsAuth(true);
@@ -35,7 +45,7 @@ function Dashboard() {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* {Sidebar} */}
       <div className="md:w-56">
-      <DashSidebar location="dashboard"/>
+      <DashSidebar location={tab}/>
       </div>
       <DashMain/>
     </div>
