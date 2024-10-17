@@ -5,7 +5,7 @@ import { registEmail } from "../controllers/regist.controller.js";
 const rateLimiter = rateLimit({
 windowMs: 6 * 60 * 60 * 1000, // 6 hours
 max: 3, // Limit each IP to 1 request per windowMs
-message: "Too many requests from this IP, please try again later.",
+message: "Too many requests from this IP, please try again after 6 hours.",
 });
 
 

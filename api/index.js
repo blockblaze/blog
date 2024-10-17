@@ -1,5 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from 'cookie-parser';
+
 
 import { dbconnection } from "./config/dbconnect.js";
 import  contactRoute from "./routes/contacts.route.js";
@@ -12,6 +14,7 @@ dbconnection.connect();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use("/api/contact",contactRoute)
 app.use("/api",registRoute)

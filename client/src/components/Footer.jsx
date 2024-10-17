@@ -43,10 +43,11 @@ export default function FooterCom() {
           <div className='mt-5'>
 <form className="flex">
   <TextInput
-    id="email"
+    id="footer-email"
     placeholder="Email Address"
     className="flex-1 font-normal"
     style={{borderRadius:0}}
+    required
     // Removes rounded corners and makes input take the available width
   />
     <button className="bg-custom-orange text-white p-2 m:p-3 hover:bg-custom-dark-orange font-medium text-sm">Subscribe</button>
