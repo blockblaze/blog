@@ -35,7 +35,7 @@ function Header() {
         </Button>
         <div className="flex gap-3 md:order-2">
             <Button className="w-12 h-10" color="gray" pill onClick={()=>dispatch(toggleTheme())}>
-                {theme === "light"? <FaSun/>: <FaMoon/>}
+                {theme === "light"? <FaMoon/>:<FaSun/> }
             </Button>
             <Link to="/about">
             <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium hidden sm:inline">About</button>
