@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import Login from "../components/Login";
+import { DashSidebar } from "../components/DashSidebar";
+import { DashMain } from "../components/DashMain";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
@@ -30,10 +32,13 @@ function Dashboard() {
     return (
       <>
   {isAuth ? (
-        <div className="min-h-screen">
-          <h1>Welcome to the Admin Dashboard</h1>
-          {/* Your dashboard content goes here */}
-        </div>
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* {Sidebar} */}
+      <div className="md:w-56">
+      <DashSidebar location="dashboard"/>
+      </div>
+      <DashMain/>
+    </div>
       ) : (
         <Login onLoginSuccess={handleLoginSuccess} />
       )}
