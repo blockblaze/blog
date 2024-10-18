@@ -10,6 +10,8 @@ export default defineConfig({
         secure:false
       }
     }
+  },  optimizeDeps: {
+    include: ['react-quill'],
   },
   plugins: [react()],
 })

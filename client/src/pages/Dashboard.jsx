@@ -4,6 +4,7 @@ import Login from "../components/Login";
 import { DashSidebar } from "../components/DashSidebar";
 import { DashMain } from "../components/DashMain";
 import { useLocation } from "react-router-dom";
+import { CreatePost } from "../components/createPost";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
@@ -47,7 +48,10 @@ function Dashboard() {
       <div className="md:w-56">
       <DashSidebar location={tab}/>
       </div>
-      <DashMain/>
+      {tab === '' && <DashMain/>}
+      {tab === 'create' && <CreatePost/>}
+      {tab === 'stats' && <DashMain/>}
+
     </div>
       ) : (
         <Login onLoginSuccess={handleLoginSuccess} />
