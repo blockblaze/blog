@@ -11,7 +11,7 @@ export default defineConfig({
       }
     }
   },  optimizeDeps: {
-    include: ['react-quill'],
+    include: ['react-quill','@ckeditor/ckeditor5-react', './ckeditor']
   },
   plugins: [react()],
 })

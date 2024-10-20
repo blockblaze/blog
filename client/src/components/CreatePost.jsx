@@ -1,14 +1,21 @@
 import { FileInput, Select, TextInput } from "flowbite-react";
 import { useState } from "react";
-import ReactQuill, {  } from 'react-quill'; // Import Quill here
-import 'react-quill/dist/quill.snow.css';
+import CKEditorCom from "./CKEditor"
+// import ReactQuill, {  } from 'react-quill'; // Import Quill here
+// import 'react-quill/dist/quill.snow.css';
 
 export function CreatePost() {
-    const [editorValue, setEditorValue] = useState('');
+    const [formValue, setFormValue] = useState({});
     const [category , setCategory] = useState('');
 
+    console.log(formValue)
+
+    function handleEditorChange(data){
+        setFormValue({...formValue , content:data})
+    }
+
     return (
-        <div className="p-3 max-w-3xl mx-auto min-h-screen">
+        <div className="p-3 w-full max-w-3xl mx-auto min-h-screen">
             <h1 className="text-center text-4xl my-7 font-bold">Create a post</h1>
             <form className="flex flex-col gap-4">
                 <div className="flex flex-col gap-4 sm:flex-row justify-between">
@@ -30,18 +37,21 @@ export function CreatePost() {
                 </div>
 
                 {/* Quill Editor */}
-                <ReactQuill 
+                {/* <ReactQuill 
                     theme="snow" 
                     placeholder="Enter something..." 
                     className="h-72 mb-12" 
                     value={editorValue} 
                     onChange={setEditorValue}
+                /> */}
+                <CKEditorCom 
+                setEditorValue={handleEditorChange}
                 />
 
                 {/* Downloadables */}
 
                 {category === "maps" || category ==="scripts"?                 <><TextInput type="text" placeholder="Supported Minecraft version" id="supported-version" required /><FileInput type="file" accept="images/*" /></>
-                : <></>}
+                : null}
 
                     <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium">
                         Create
