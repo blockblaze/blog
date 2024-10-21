@@ -64,66 +64,59 @@ export const searchposts = async (req, res) => {
   res.status(200).json(rows);
 };
 
+
+
 export const createPost = async (req, res) => {
-    try {
-      let { title, slug, content, imageUrl, category } = req.body;
-  
-      // Check provided data
-      if (!title || !slug || !content || !imageUrl || !category) {
-        return res.status(400).json({
-          success: false,
-          statusCode: 400,
-          message: "All fields are required.",
-        });
-      }
-  
-      // Check if slug is available
-      const checkQuery = "SELECT slug FROM posts WHERE slug = ?";
-      const [rows] = await dbconnection.promise().query(checkQuery, [slug]);
-      if (rows.length > 0) {
-        return res.status(400).json({
-          success: false,
-          statusCode: 400,
-          message: "Slug is already used.",
-        });
-      }
-  
-      // Insert post into the database
-      const insertQuery =
-        "INSERT INTO posts (title, slug, category, content, thumbnail_url) VALUES (?, ?, ?, ?, ?)";
-      const [result] = await dbconnection
-        .promise()
-        .execute(insertQuery, [title, slug, category, content, imageUrl]);
-  
-      // Insert downloadable data if available
-      if (req.body.fileUrl && req.body.supportedVersion) {
-        const insertDownloadQuery =
-          "INSERT INTO downloadables (version, supported_versions, file_url, post_id) VALUES (1, ?, ?, ?)";
-        
-        const [insertDownloadResult] = await dbconnection
-          .promise()
-          .execute(insertDownloadQuery, [req.body.supportedVersion, req.body.fileUrl, result.insertId]);
-  
-        return res.status(201).json({
-          success: true,
-          statusCode: 201,
-          message: { postId: result.insertId },
-        });
-      }
-  
-      // Respond with success if no downloadable data is provided
-      res.status(201).json({
-        success: true,
-        statusCode: 201,
-        message: { postId: result.insertId },
-      });
-    } catch (err) {
-      res.status(500).json({
+  try {
+    let { title, slug, content, imageUrl, category, fileUrl, supportedVersion } = req.body;
+
+    // Validate required fields
+    if (!title || !slug || !content || !imageUrl || !category) {
+      return res.status(400).json({
         success: false,
-        statusCode: 500,
-        message: "Internal server error!",
+        statusCode: 400,
+        message: "All fields are required.",
       });
-      console.log(err);
     }
-  };
-  
+
+    // Check if slug is already in use
+    const checkQuery = "SELECT slug FROM posts WHERE slug = ?";
+    const [rows] = await dbconnection.promise().query(checkQuery, [slug]);
+    if (rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: "Slug is already used.",
+      });
+    }
+    
+    slug = slug.split(' ')
+    .join('-')
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9-]/g, '');
+    // Insert the post into the posts table
+    const insertQuery = "INSERT INTO posts (title, slug, category, content, thumbnail_url) VALUES (?, ?, ?, ?, ?)";
+    const [result] = await dbconnection.promise().execute(insertQuery, [title, slug, category, content, imageUrl]);
+
+    // Check if downloadable data exists and insert into the downloadables table
+    if (fileUrl && supportedVersion) {
+      const insertDownloadQuery = "INSERT INTO downloadables (version, supported_versions, file_url, post_id) VALUES (1, ?, ?, ?)";
+      await dbconnection.promise().execute(insertDownloadQuery, [supportedVersion, fileUrl, result.insertId]);
+    }
+
+    // Respond with success
+    return res.status(201).json({
+      success: true,
+      statusCode: 201,
+      message: { postId: result.insertId },
+    });
+  } catch (err) {
+    // Handle errors
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Internal server error!",
+    });
+  }
+};
