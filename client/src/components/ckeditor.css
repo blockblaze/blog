@@ -8,7 +8,7 @@
 }
 
 .main-container {
-    color: black !important;
+    color: black ;
 	font-family: 'Lato';
     width: 100%; /* or set a specific width like 500px */
     max-width: 100%;

@@ -210,7 +210,7 @@ export function CreatePost() {
               placeholder="Supported Minecraft version"
               id="supported-version"
               required
-              onChange={(e)=>{setFormData({...formData , supporedVersion:e.target.value})}}
+              onChange={(e)=>{setFormData({...formData , supportedVersion:e.target.value})}}
             />
             <div className="flex gap-4 items-center justify-between border-4 border-custom-dark-orange border-dotted p-3">
             <FileInput type="file"
