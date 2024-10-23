@@ -5,6 +5,7 @@ import { DashSidebar } from "../components/DashSidebar";
 import { DashMain } from "../components/DashMain";
 import { useLocation } from "react-router-dom";
 import { CreatePost } from "../components/createPost";
+import { DashPosts } from "../components/DashPosts";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
@@ -50,6 +51,7 @@ function Dashboard() {
       </div>
       {tab === '' && <DashMain/>}
       {tab === 'create' && <CreatePost/>}
+      {tab === 'posts' && <DashPosts/>}
       {tab === 'stats' && <DashMain/>}
 
     </div>
