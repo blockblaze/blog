@@ -58,7 +58,7 @@ export const searchposts = async (req, res) => {
     FROM posts p
     LEFT JOIN downloadables d ON p.post_id = d.post_id
     
-    WHERE p.title LIKE ? OR p.content LIKE ? LIMIT ? OFFSET ?;`;
+    WHERE p.title LIKE ? OR p.content LIKE ? ORDER BY p.updated_date DESC LIMIT ? OFFSET ?;`;
 
   const [rows] = await dbconnection
     .promise()
@@ -120,6 +120,41 @@ export const createPost = async (req, res) => {
       success: false,
       statusCode: 500,
       message: "Internal server error!",
+    });
+  }
+};
+
+export const deletePost = async (req,res) =>{
+  const postId = req.params.postId;
+
+  if(!postId) return res.status(400).json({
+    success: false,
+    statusCode: 400,
+    message: "Post id is required.",
+  });
+
+  try{
+
+    // Delete from downloadables table
+    const deleteDownloadablesQuery = "DELETE FROM downloadables WHERE post_id = ?";
+    const [deleteDownloadablesResult] = await dbconnection.promise().execute(deleteDownloadablesQuery, [postId]);
+
+    // Delete from posts table
+    const deletePostQuery = "DELETE FROM posts WHERE post_id = ?";
+    const [deletePostResult] = await dbconnection.promise().execute(deletePostQuery, [postId]);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "The post has been deleted successfully.",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Internal server error.",
     });
   }
 };
