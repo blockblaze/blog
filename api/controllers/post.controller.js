@@ -40,6 +40,9 @@ export const getposts = async (req, res) => {
 };
 
 export const searchposts = async (req, res) => {
+  const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit) || 9;
+
   let searchTerm = req.query.q;
   if (!searchTerm)
     return res
@@ -55,11 +58,11 @@ export const searchposts = async (req, res) => {
     FROM posts p
     LEFT JOIN downloadables d ON p.post_id = d.post_id
     
-    WHERE p.title LIKE ? OR p.content LIKE ?`;
+    WHERE p.title LIKE ? OR p.content LIKE ? LIMIT ? OFFSET ?;`;
 
   const [rows] = await dbconnection
     .promise()
-    .query(query, [`%${searchTerm}%`, `%${searchTerm}%`]);
+    .query(query, [`%${searchTerm}%`, `%${searchTerm}%` , limit , offset]);
 
   res.status(200).json(rows);
 };

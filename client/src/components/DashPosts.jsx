@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
-import { Table } from "flowbite-react";
+import { Table, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { AiOutlineSearch } from "react-icons/ai";
 
 export function DashPosts(){
 
     const [posts , setPosts] = useState([]);
-    console.log(posts)
+    const [showMore , setShowMore] = useState(true);
+    const [searchQuery , setSearchQuery] = useState(null);
     useEffect(()=>{
         const fetchPosts = async ()=>{
             const res = await fetch("/api/post/getposts");
@@ -13,14 +15,80 @@ export function DashPosts(){
 
             if(res.ok){
                 setPosts(data)
+                if(data.length <9) setShowMore(false)
             }
         }
         fetchPosts();
     },[])
+
+    const handleShowMore = async ()=>{
+      try{
+        if(!searchQuery || searchQuery == ''){
+          const startIndex = posts.length;
+          const res = await fetch(`/api/post/getposts?offset=${startIndex}`);
+          const data = await res.json();
+          
+          if(res.ok){
+            setPosts((prev)=>[...prev , ...data]);
+            if (data.length < 9) {
+              setShowMore(false);
+            }
+          }
+        }else{
+          const startIndex = posts.length;
+          const res = await fetch(`/api/post/searchposts?q=${searchQuery}&offset=${startIndex}`);
+          const data = await res.json();
+          
+          if(res.ok){
+            console.log(data)
+            setPosts((prev)=>[...prev , ...data]);
+            if (data.length < 9) {
+              setShowMore(false);
+            }
+          }
+        }
+       
+      }catch(err){
+        console.log(err)
+      }
+
+      
+    };
+
+    const handleSearch = async (e)=>{
+      try{
+        e.preventDefault();
+
+        if(searchQuery === '') return;
+
+        const res = await fetch(`/api/post/searchposts?q=${searchQuery}`);
+        const data = await res.json();
+
+        if(res.ok){
+          console.log(data)
+          setPosts(data);
+        }
+
+      }catch(err){
+        console.log(err)
+      }
+    };
     return(
+
         <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'">
+            <div className="mb-3">
+                <form onSubmit={handleSearch}>
+                <TextInput
+                placeholder="Search a post..."
+                icon={AiOutlineSearch}
+                onChange={(e)=>setSearchQuery(e.target.value)}
+                minLength={3}
+                required
+                />
+                </form>
+            </div>
             {posts.length  >0? (
-                <>
+                <div>
                 <Table hoverable className="shadow-md">
                     <Table.Head>
                 <Table.HeadCell>Updated at</Table.HeadCell>
@@ -74,8 +142,17 @@ export function DashPosts(){
             </Table.Body>
                 ))}
                 </Table>
-                </>
-            ): <p className="p-3">You don&apos;t have any posts yet.</p>}
+                {showMore && (
+            <button
+              // onClick={handleShowMore}
+              onClick={handleShowMore}
+              className='w-full text-teal-500 self-center text-sm py-7'
+            >
+              Show more
+            </button>
+          )}
+                </div>
+            ): <p className="p-3">No posts to preview.</p>}
         </div>
     );
 }
