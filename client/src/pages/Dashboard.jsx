@@ -4,8 +4,9 @@ import Login from "../components/Login";
 import { DashSidebar } from "../components/DashSidebar";
 import { DashMain } from "../components/DashMain";
 import { useLocation } from "react-router-dom";
-import { CreatePost } from "../components/createPost";
+import { CreatePost } from "../components/CreatePost";
 import { DashPosts } from "../components/DashPosts";
+import { UpdatePost } from "../components/UpdatePost";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
@@ -52,7 +53,9 @@ function Dashboard() {
       {tab === '' && <DashMain/>}
       {tab === 'create' && <CreatePost/>}
       {tab === 'posts' && <DashPosts/>}
+      {tab === "update" && <UpdatePost/>}
       {tab === 'stats' && <DashMain/>}
+
 
     </div>
       ) : (

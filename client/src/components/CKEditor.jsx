@@ -61,7 +61,7 @@ import 'ckeditor5/ckeditor5.css';
 
 import './ckeditor.css';
 
-export default function CKEditorCom({setEditorValue}) {
+export default function CKEditorCom({setEditorValue,defaultData}) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -230,8 +230,8 @@ export default function CKEditorCom({setEditorValue}) {
 				}
 			]
 		},
-		initialData:
-			'<h1>Enter something</h1>',
+		// initialData:
+		// 	'<h1>Enter something...</h1>',
 		link: {
 			addTargetToExternalLinks: true,
 			defaultProtocol: 'https://',
@@ -305,7 +305,7 @@ export default function CKEditorCom({setEditorValue}) {
 			<div className="main-container">
 				<div className="editor-container editor-container_classic-editor editor-container_include-style" ref={editorContainerRef}>
 					<div className="editor-container__editor">
-						<div ref={editorRef}>{isLayoutReady && <CKEditor editor={ClassicEditor} config={editorConfig}         onChange={(event, editor) => {
+						<div ref={editorRef}>{isLayoutReady && <CKEditor editor={ClassicEditor} config={editorConfig} data={defaultData ? defaultData: '<h1>Enter a bro</h1>'}   onChange={(event, editor) => {
           const data = editor.getData();
           setEditorValue(data);  // Pass data to parent component
         }}/>}</div>

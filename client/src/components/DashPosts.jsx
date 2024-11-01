@@ -138,7 +138,7 @@ export function DashPosts(){
                     <Table.Cell>
                     <Link to={`/post/${post.slug}`}>
                       <img
-                        src={post.thumbnailURL}
+                        src={post.thumbnailUrl}
                         alt={post.title}
                         className='w-20 h-10 object-cover bg-gray-500'
                       />
@@ -161,7 +161,7 @@ export function DashPosts(){
                     </span>
                     </Table.Cell>
                   <Table.Cell>
-                  <Link to={`/dashboard?tab=edit&postId=${post.postId}`} className="text-teal-500 hover:underline">
+                  <Link to={`/dashboard?tab=update&postId=${post.postId}`} className="text-teal-500 hover:underline">
                   <span>
                     Edit
                     </span>

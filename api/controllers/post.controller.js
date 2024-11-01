@@ -4,7 +4,7 @@ export const getposts = async (req, res) => {
   const offset = parseInt(req.query.offset) || 0;
   const limit = parseInt(req.query.limit) || 9;
 
-  let query = `SELECT p.post_id AS postId, p.title, slug, p.category, p.content, p.thumbnail_url AS thumbnailURL, p.created_date AS createdDATE, p.updated_date AS updatedDATE, d.version, d.supported_versions AS supportedVersions, d.file_url AS fileUrl
+  let query = `SELECT p.post_id AS postId, p.title, slug, p.category, p.content, p.thumbnail_url AS thumbnailUrl, p.created_date AS createdDATE, p.updated_date AS updatedDATE, d.version, d.supported_versions AS supportedVersions, d.file_url AS fileUrl
     FROM posts p
     LEFT JOIN downloadables d ON p.post_id = d.post_id`;
 
@@ -54,7 +54,7 @@ export const searchposts = async (req, res) => {
       });
 
   //search in db
-  const query = `SELECT p.post_id AS postId, p.title, slug, p.category, p.content, p.thumbnail_url AS thumbnailURL, p.created_date AS createdDATE, p.updated_date AS updatedDATE, d.version, d.supported_versions AS supportedVersions, d.file_url AS fileUrl
+  const query = `SELECT p.post_id AS postId, p.title, slug, p.category, p.content, p.thumbnail_url AS thumbnailUrl, p.created_date AS createdDATE, p.updated_date AS updatedDATE, d.version, d.supported_versions AS supportedVersions, d.file_url AS fileUrl
     FROM posts p
     LEFT JOIN downloadables d ON p.post_id = d.post_id
     
@@ -71,10 +71,10 @@ export const searchposts = async (req, res) => {
 
 export const createPost = async (req, res) => {
   try {
-    let { title, slug, content, imageUrl, category, fileUrl, supportedVersion } = req.body;
+    let { title, slug, content, thumbnailUrl, category, fileUrl, supportedVersions } = req.body;
 
     // Validate required fields
-    if (!title || !slug || !content || !imageUrl || !category) {
+    if (!title || !slug || !content || !thumbnailUrl || !category) {
       return res.status(400).json({
         success: false,
         statusCode: 400,
@@ -99,12 +99,12 @@ export const createPost = async (req, res) => {
     .replace(/[^a-zA-Z0-9-]/g, '');
     // Insert the post into the posts table
     const insertQuery = "INSERT INTO posts (title, slug, category, content, thumbnail_url) VALUES (?, ?, ?, ?, ?)";
-    const [result] = await dbconnection.promise().execute(insertQuery, [title, slug, category, content, imageUrl]);
+    const [result] = await dbconnection.promise().execute(insertQuery, [title, slug, category, content, thumbnailUrl]);
 
     // Check if downloadable data exists and insert into the downloadables table
-    if (fileUrl && supportedVersion) {
+    if (fileUrl && supportedVersions) {
       const insertDownloadQuery = "INSERT INTO downloadables (version, supported_versions, file_url, post_id) VALUES (1, ?, ?, ?)";
-      await dbconnection.promise().execute(insertDownloadQuery, [supportedVersion, fileUrl, result.insertId]);
+      const [downloadableResult] = await dbconnection.promise().execute(insertDownloadQuery, [supportedVersions, fileUrl, result.insertId]);
     }
 
     // Respond with success
@@ -123,6 +123,58 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+export const updatePost = async (req , res) =>{
+  
+  let { title, postId, slug, content, thumbnailUrl, category, fileUrl, version ,supportedVersions } = req.body;
+  // Validate required fields
+  if (!title || !slug || !content || !thumbnailUrl || !category || !postId) {
+    return res.status(400).json({
+      success: false,
+      statusCode: 400,
+      message: "All fields are required.",
+    });
+  }
+
+  // Check if slug is already in use
+  slug = slug.split(' ')
+  .join('-')
+  .toLowerCase()
+  .replace(/[^a-zA-Z0-9-]/g, '');
+  
+  const checkQuery = "SELECT slug,post_id AS postId FROM posts WHERE slug = ?";
+  const [rows] = await dbconnection.promise().query(checkQuery, [slug]);
+  if (rows.length > 0 && rows[0].postId !== postId) {
+    return res.status(400).json({
+      success: false,
+      statusCode: 400,
+      message: "Slug is already used.",
+    });
+  }
+  
+
+  const updateQuery = 'UPDATE posts SET title = ?, slug=?,content=?,category=?,thumbnail_url=?,updated_date = CURRENT_TIMESTAMP() WHERE post_id =?';
+  const updateParams = [title,slug,content,category,thumbnailUrl,postId]
+
+  const [updateResult] = await dbconnection.promise().execute(updateQuery,updateParams);
+    
+  // Check if downloadable data exists and insert into the downloadables table
+    if (fileUrl && supportedVersions && version) {
+      const newVersion = parseInt(version) +0.1;
+      const updateDownloadQuery = "UPDATE downloadables set version = ? , supported_versions = ?,file_url = ? WHERE post_id = ?";
+      const [updateDownloadResult] = await dbconnection.promise().execute(updateDownloadQuery, [newVersion,supportedVersions, fileUrl, postId]);
+    }
+
+    res.status(200).json({
+      success: true,
+      statusCode: 201,
+      message: "Post updated successfully"
+    }
+    )
+
+};
+
+
 
 export const deletePost = async (req,res) =>{
   const postId = req.params.postId;

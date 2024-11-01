@@ -1,5 +1,5 @@
 import { Alert, FileInput, Select, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CKEditorCom from "./CKEditor";
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -14,17 +14,60 @@ import { app } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 
-export function CreatePost() {
+// eslint-disable-next-line react/prop-types
+export function UpdatePost() { 
+  const [postId , setPostId] = useState(null);
   const [files, setFiles] = useState({});
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [fileUploadError, setFileUploadError] = useState(null);
   const [fileUploadProgress, setFileUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    title: '',
+    category: '',
+    slug: '',
+    content: '',
+    supportedVersions: '',
+    thumbnailUrl: '',
+    fileUrl: ''
+  });  
+
+  console.log(formData)
   const [category, setCategory] = useState("");
   const [publishError,setPublishError] = useState(null);
 
+
+
   const navigate = useNavigate();
+  useEffect(() => {
+    
+    const urlParams = new URLSearchParams(location.search);
+    const tabFromUrl = urlParams.get('postId');
+    if (tabFromUrl) {
+      setPostId(tabFromUrl);
+    }else return navigate("/");
+    try {
+      const fetchPost = async () => {
+        const res = await fetch(`/api/post/getposts?postId=${parseInt(postId)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          console.log(data.message);
+          setPublishError(data.message);
+          return;
+        }
+        if (res.ok) {
+          setPublishError(null);
+
+          setFormData(data[0]);
+          setCategory(data[0].category)
+        }
+      };
+
+      fetchPost();
+    } catch (error) {
+      console.log(error.message);
+    }
+  }, [navigate, postId]);
 
   const handleUploadImage = async () => {
     if (!files.image) {
@@ -95,7 +138,7 @@ export function CreatePost() {
       }
     );
   };
-
+  
   const handleEditorChange = (data) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -106,13 +149,15 @@ export function CreatePost() {
   const handleSubmit = async (e)=>{
     e.preventDefault();
     try{
-      const respone = await fetch('/api/post/create',{
+      const respone = await fetch('/api/post/update',{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
     })
     const data = await respone.json();
+    console.log(data)
     if(data.success){
+
       const slug  =
       formData.slug.split(' ')
       .join('-')
@@ -124,7 +169,7 @@ export function CreatePost() {
       setPublishError(data.message);
     }
     }catch(err){
-      setPublishError(err.response?.data?.message || 'Created failed.');
+      setPublishError(err.response?.data?.message || 'Updated failed.');
 
     }
 
@@ -137,7 +182,7 @@ export function CreatePost() {
 
   return (
     <div className="p-3 w-full max-w-3xl mx-auto min-h-screen">
-      <h1 className="text-center text-4xl my-7 font-bold">Create a post</h1>
+      <h1 className="text-center text-4xl my-7 font-bold">Update post</h1>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput
@@ -146,10 +191,12 @@ export function CreatePost() {
             id="title"
             className="flex-1"
             required
-
+            value={formData?.title || ""}
             onChange={(e)=>{setFormData({...formData , title:e.target.value})}}
           />
-          <Select
+
+          {category === "maps" || category === "scripts" ?(
+            <><Select
             
             onChange={(e) => {
               setCategory(e.target.value);
@@ -157,14 +204,29 @@ export function CreatePost() {
             }}
             id="category"
             required
+            value={formData?.category || ""}
           >
             <option value="">Select a category</option>
-            <option value="articles">Articles</option>
             <option value="scripts">Scripts</option>
             <option value="maps">Maps</option>
           </Select>
+          </>
+          ):(<><Select
+            
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setFormData({...formData , category:e.target.value})
+            }}
+            id="category"
+            required
+            value={formData?.category || ""}
+          >
+            <option value="">Select a category</option>
+            <option value="articles">Articles</option>
+          </Select></>)}
+
         </div>
-        <TextInput type="text" placeholder="Slug" id="slug"  required onChange={(e)=>{setFormData({...formData , slug:e.target.value})}}/>
+        <TextInput type="text" placeholder="Slug" id="slug"  required onChange={(e)=>{setFormData({...formData , slug:e.target.value})}} value={formData?.slug || ""}/>
 
         <div className="flex gap-4 items-center justify-between border-4 border-custom-dark-orange border-dotted p-3">
           <FileInput
@@ -173,7 +235,6 @@ export function CreatePost() {
             onChange={(e) => {
               setFiles({ ...files, image: e.target.files[0] });
             }}
-            required
           />
             <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium" type="button" onClick={handleUploadImage}>
             {
@@ -190,7 +251,7 @@ export function CreatePost() {
 
         </div>
         {imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
-        {formData.thumbnailUrl && (
+        {formData?.thumbnailUrl && (
           <img
             src={formData.thumbnailUrl}
             alt='upload'
@@ -206,7 +267,7 @@ export function CreatePost() {
                         value={editorValue} 
                         onChange={setEditorValue}
                     /> */}
-        <CKEditorCom setEditorValue={handleEditorChange} />
+        <CKEditorCom setEditorValue={handleEditorChange} defaultData={formData?.content || '<p>Enter something</p>'}/>
 
         {/* Downloadables */}
 
@@ -218,12 +279,13 @@ export function CreatePost() {
               id="supported-version"
               required
               onChange={(e)=>{setFormData({...formData , supportedVersions:e.target.value})}}
-            />
+            value={formData?.supportedVersions || ''}
+           />
             <div className="flex gap-4 items-center justify-between border-4 border-custom-dark-orange border-dotted p-3">
             <FileInput type="file"
             onChange={(e) => {
               setFiles({ ...files, file: e.target.files[0] });
-            }} required/>
+            }}/>
 
             <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium" type="button" onClick={handleUploadFile}>
             {
