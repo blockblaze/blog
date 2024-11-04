@@ -3,10 +3,15 @@
 @tailwind utilities;
 
 /* styles.css */
-input:focus {
 
-    
-  }
+::selection{
+  color: #fff;
+  background-color: #fd8f44;
+}
+
+.text-sidebar{
+  background-color: #fd8f44 !important;
+}
 
   .focus\:ring-cyan-500:focus {
     --tw-ring-opacity: 1 !important;
@@ -15,4 +20,34 @@ input:focus {
 
 .focus\:border-cyan-500:focus {
     border-color: hsl(24,98%,58%) !important;
+}
+
+.post-content p {
+  margin-bottom: 0.5rem;
+}
+
+.post-content h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  font-family: sans-serif;
+  margin: 1.5rem 0;
+}
+
+.post-content h2 {
+  font-size: 1.8rem;
+  font-family: sans-serif;
+  margin: 1.5rem 0;
+}
+
+.post-content a {
+  color: rgb(73, 149, 199);
+  text-decoration: none;
+}
+
+.post-content a:hover {
+  text-decoration: underline;
+}
+
+.dark .post-content a {
+  color: red;
 }

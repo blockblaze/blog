@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFount";
 import Dashboard from "./pages/Dashboard";
 import Header from "./components/Header";
 import FooterCom from "./components/Footer";
+import Post from "./pages/Post"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
     <Route path="/content" element={<Content/>}/>
     <Route path="/contact" element={<Contact/>}/>
     <Route path="/dashboard" element={<Dashboard/>}/>
+    <Route path="/post/:postSlug" element={<Post/>}/>
     <Route path="*" element={<NotFound/>}/>
   </Routes>
   <FooterCom></FooterCom>
@@ -30,3 +32,4 @@ function App() {
 }
 
 export default App
+

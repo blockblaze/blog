@@ -303,7 +303,7 @@ export function UpdatePost() {
         ) : null}
 
         <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium">
-          Create
+          Update
         </button>
         {publishError && (
   <Alert color="failure">
