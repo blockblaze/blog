@@ -39,6 +39,34 @@
   margin: 1.5rem 0;
 }
 
+.post-content h3 {
+  font-size: 1.6rem;
+  font-family: sans-serif;
+  margin: 1.5rem 0;
+}
+
+.post-content p{
+  font-size: 1.14rem;
+  font-family: sans-serif;
+  color: rgb(97, 97, 97);
+}
+
+.dark .post-content p{
+  font-size: 1.14rem;
+  font-family: sans-serif;
+  color: rgb(212, 212, 212);
+}
+
+.post-content .marker-green{
+  background-color: greenyellow;
+}
+
+.post-content .marker-yellow{
+  background-color: yellow;
+}
+
+
+
 .post-content a {
   color: rgb(73, 149, 199);
   text-decoration: none;
@@ -50,4 +78,29 @@
 
 .dark .post-content a {
   color: red;
+}
+
+.download-btn{
+  display: inline-block;
+  color: #000;
+  text-decoration: none;
+  letter-spacing: 1px;
+  font-weight: bolder;
+  padding: 1.5rem;
+  margin: 10px auto 25px;
+  background-color: #f1c130;
+  box-shadow: 0 10px 22px -6px #00000021, 0 -4px #9f7a0b inset, 0 4px #fff0ac inset, -4px 0 #fff0ac inset, 4px 0 #9f7a0b inset;
+  transition: .15s;
+  transition-property: all;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+  transition-delay: 0s;
+}
+
+.download-btn:hover{
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+  color: #fff;
+  background-color: #313131;
+  box-shadow: 0 10px 22px -6px #00000021,0 -4px rgba(0,0,0,.5) inset,0 4px rgba(255,255,255,.5) inset,-4px 0 rgba(255,255,255,.5) inset,4px 0 rgba(0,0,0,.5) inset;
 }

@@ -1,7 +1,9 @@
-import { Button, Spinner } from "flowbite-react";
+import { Button, Dropdown, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
+import { MdOutlineDoubleArrow } from "react-icons/md";
+
 
 function Post() {
   const { postSlug } = useParams();
@@ -12,11 +14,19 @@ function Post() {
   const [submittedRating, setSubmittedRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [isRateSubmitted, setIsRateSubmitted] = useState(false);
+  const [postVersionToView , setPostVersionToView] = useState("1.0");
   const rateElementRef = useRef(null);
+  const downloadElementRef = useRef(null);
 
-  const handleScroll = () => {
-    if (rateElementRef.current) {
-      rateElementRef.current.scrollIntoView({ behavior: "smooth" });
+  const handleScroll = (element) => {
+    switch(element){
+      case 'rate':
+        rateElementRef.current.scrollIntoView({ behavior: "smooth" });
+
+      ;break;
+      case 'downloads':
+        downloadElementRef.current.scrollIntoView({ behavior: "instant" });
+      ;break;
     }
   };
 
@@ -55,7 +65,7 @@ function Post() {
 
 
     // Implement the API submission logic here
-    console.log("Submitted rating:", submittedRating);
+
 
 
   return (
@@ -74,7 +84,7 @@ function Post() {
         </Link>
 
         <div className="self-center mt-5 flex flex-row gap-2">
-          <p className="text-xs underline cursor-pointer" onClick={handleScroll}>
+          <p className="text-xs underline cursor-pointer" onClick={()=>handleScroll("rate")}>
             {defaultRating.toFixed(1)}
           </p>
           {[...Array(5)].map((_, index) => {
@@ -88,6 +98,12 @@ function Post() {
             );
           })}
         </div>
+        {post.category === "maps" || post.category === "scripts"?(
+          <div className="mx-auto mt-10 flex cursor-pointer" onClick={()=>handleScroll("downloads")}>
+            <p className="font-semibold text-lg text-custom-orange hover:underline">Skip to Downloads</p>
+            <MdOutlineDoubleArrow color="orange" className="text-2xl mt-[2.5px] "/>
+          </div>
+        ):null}
 
         <img
           src={post && post.thumbnailUrl}
@@ -113,6 +129,24 @@ function Post() {
           dangerouslySetInnerHTML={{ __html: post && post.content }}
         ></div>
 
+        {post.category === "maps" || post.category === "scripts"?(
+          <div className="mt-5 flex flex-col gap-1" ref={downloadElementRef}>
+            <p className="mb-3 font-semibold text-lg lg:text-2xl">Select version for download:</p>
+        <Dropdown label={postVersionToView} inline className="border border-slate-800">
+      <Dropdown.Item onClick={()=>{setPostVersionToView("1.0")}}>1.0</Dropdown.Item>
+      <Dropdown.Item onClick={()=>{setPostVersionToView("1.1")}}>1.1</Dropdown.Item>
+      <Dropdown.Item onClick={()=>{setPostVersionToView("1.2")}}>1.2</Dropdown.Item>
+      <Dropdown.Item onClick={()=>{setPostVersionToView("1.3")}}>1.3</Dropdown.Item>
+    </Dropdown>
+
+    <div className="border rounded border-slate-400 mt-5">
+      <div className="border-b border-slate-400 p-3"><p className="text-lg font-semibold">Changelogs</p></div>
+      <div className="p-3"><p>Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40</p></div>
+    </div>
+    <button className="download-btn w-40">Download</button>
+          </div>
+        ):null}
+
         <div ref={rateElementRef} className="flex justify-center flex-col gap-2 mt-3">
           <p className="self-center text-3xl font-bold">Did you like this post?</p>
           <p className="self-center text-lg">Rate it by clicking on a star!</p>
@@ -128,8 +162,9 @@ function Post() {
                     // Update submitted rating on click
                     if (starValue !== submittedRating) { // Only update if different
                       setSubmittedRating(starValue);
-                      setIsRateSubmitted(true)
+
                     }
+                    setIsRateSubmitted(true)
                   }}
                   onMouseEnter={() => setHover(starValue)}
                   onMouseLeave={() => setHover(0)}
