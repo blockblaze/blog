@@ -14,10 +14,9 @@ function Post() {
   const [submittedRating, setSubmittedRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [isRateSubmitted, setIsRateSubmitted] = useState(false);
-  const [postVersionToView , setPostVersionToView] = useState("1.0");
+  const [downloadVersion , setDownloadVersion] = useState("1.0");
   const rateElementRef = useRef(null);
   const downloadElementRef = useRef(null);
-
   const handleScroll = (element) => {
     switch(element){
       case 'rate':
@@ -38,24 +37,39 @@ function Post() {
       const data = await res.json();
       if (!res.ok) {
         setLoading(false);
-        setError(true);
+        setError(data.message);
         return;
       }
       if (res.ok) {
-        setLoading(false);
-        setError(false);
-        setPost(data[0]);
-        setDefaultRating(data[0]?.rating || 3);
-        setSubmittedRating(data[0]?.rating || 3);
+        if(data.length === 0){
+          setLoading(false);
+          setError("No post found");
+        }else{
+          setLoading(false);
+          setError(false);
+          setPost(data[0]);
+          setDefaultRating(data[0]?.rating || 3);
+          setSubmittedRating(data[0]?.rating || 3);
+          setDownloadVersion(data[0].downloadables[data[0].downloadables.length-1])
+        }
+
       }
     };
     getPost();
   }, [postSlug]);
 
+  const handleDownload = () => {
+    const fileUrl = downloadVersion.fileUrl; // URL of the file
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Cleanup
+  };
+
   const handleRateSubmit =()=>{
 
   };
-
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -63,8 +77,9 @@ function Post() {
       </div>
     );
 
-
-    // Implement the API submission logic here
+    if(error) return(
+      <div className="min-h-screen m-5"><p className="text-center text-2xl">{error}</p></div>
+    );
 
 
 
@@ -84,9 +99,7 @@ function Post() {
         </Link>
 
         <div className="self-center mt-5 flex flex-row gap-2">
-          <p className="text-xs underline cursor-pointer" onClick={()=>handleScroll("rate")}>
-            {defaultRating.toFixed(1)}
-          </p>
+
           {[...Array(5)].map((_, index) => {
             const starValue = index + 1;
             return (
@@ -97,6 +110,9 @@ function Post() {
               />
             );
           })}
+            <p className="font-bold cursor-pointer underline" onClick={()=>handleScroll("rate")}>
+            {defaultRating.toFixed(1)}
+          </p>
         </div>
         {post.category === "maps" || post.category === "scripts"?(
           <div className="mx-auto mt-10 flex cursor-pointer" onClick={()=>handleScroll("downloads")}>
@@ -132,18 +148,31 @@ function Post() {
         {post.category === "maps" || post.category === "scripts"?(
           <div className="mt-5 flex flex-col gap-1" ref={downloadElementRef}>
             <p className="mb-3 font-semibold text-lg lg:text-2xl">Select version for download:</p>
-        <Dropdown label={postVersionToView} inline className="border border-slate-800">
-      <Dropdown.Item onClick={()=>{setPostVersionToView("1.0")}}>1.0</Dropdown.Item>
-      <Dropdown.Item onClick={()=>{setPostVersionToView("1.1")}}>1.1</Dropdown.Item>
-      <Dropdown.Item onClick={()=>{setPostVersionToView("1.2")}}>1.2</Dropdown.Item>
-      <Dropdown.Item onClick={()=>{setPostVersionToView("1.3")}}>1.3</Dropdown.Item>
+        <Dropdown label={downloadVersion.version} inline className="border border-slate-800">
+          {post.downloadables.map(d=>(
+              // eslint-disable-next-line react/jsx-key
+              <Dropdown.Item onClick={()=>{setDownloadVersion(d)}}>{d.version}</Dropdown.Item>
+          ))}
     </Dropdown>
+    {downloadVersion && downloadVersion.changelog !==''? (
+          <div className="border rounded border-slate-400 mt-5">
+          <div className="border-b border-slate-400 p-3"><p className="text-lg font-semibold">Changelogs</p></div>
+          <div className="p-3"><p>{downloadVersion.changelog}</p></div>
+        </div>
+    ): null }
 
-    <div className="border rounded border-slate-400 mt-5">
-      <div className="border-b border-slate-400 p-3"><p className="text-lg font-semibold">Changelogs</p></div>
-      <div className="p-3"><p>Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40Updated for 1.20.40</p></div>
+
+
+    <div className="mt-5 mb-5">
+    <p className="mb-3 font-semibold text-lg lg:text-2xl">Supported Minecraft Versions:</p>
+    <div className="flex flex-wrap gap-2">
+      {downloadVersion.supportedVersions.split(",").map(v=>(
+        // eslint-disable-next-line react/jsx-key
+        <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center mt-2" onClick={handleRateSubmit}>{v}</button>
+      ))}
     </div>
-    <button className="download-btn w-40">Download</button>
+    </div>
+    <button className="download-btn w-40" onClick={handleDownload}>Download</button>
           </div>
         ):null}
 

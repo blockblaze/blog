@@ -1,4 +1,4 @@
-import { Alert, FileInput, Select, TextInput } from "flowbite-react";
+import { Alert, FileInput, Select, Textarea, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import CKEditorCom from "./CKEditor";
 import { CircularProgressbar } from 'react-circular-progressbar';
@@ -27,15 +27,18 @@ export function UpdatePost() {
     category: '',
     slug: '',
     content: '',
-    supportedVersions: '',
+    downloadables:[
+      {
+      fileUrl:'',
+      supportedVersions:''
+      }
+    ],
     thumbnailUrl: '',
-    fileUrl: ''
   });  
-
-  console.log(formData)
   const [category, setCategory] = useState("");
   const [publishError,setPublishError] = useState(null);
 
+  console.log(formData)
 
 
   const navigate = useNavigate();
@@ -133,7 +136,11 @@ export function UpdatePost() {
         setFileUploadError(null);
         setFileUploadProgress(null);
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          setFormData({ ...formData, fileUrl: url });
+          setFormData(prevState => ({
+            ...prevState,
+            downloadables: prevState.downloadables.map((item, i) =>
+              i === prevState.downloadables.length - 1 ? { ...item, fileUrl: url } : item)
+          }))
         });
       }
     );
@@ -148,14 +155,15 @@ export function UpdatePost() {
 
   const handleSubmit = async (e)=>{
     e.preventDefault();
-    try{
+    if(!formData.fileUrl) setFormData({...formData, fileUrl:formData.downloadables[formData.downloadables.length-1].fileUrl})
+    console.log(formData)
+      try{
       const respone = await fetch('/api/post/update',{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
     })
     const data = await respone.json();
-    console.log(data)
     if(data.success){
 
       const slug  =
@@ -278,9 +286,23 @@ export function UpdatePost() {
               placeholder="Supported Minecraft version"
               id="supported-version"
               required
-              onChange={(e)=>{setFormData({...formData , supportedVersions:e.target.value})}}
-            value={formData?.supportedVersions || ''}
+              onChange={(e)=>{setFormData(prevState => ({
+                ...prevState,
+                downloadables: prevState.downloadables.map((item, i) =>
+                  i === prevState.downloadables.length - 1 ? { ...item, supportedVersions: e.target.value } : item)
+              }))}}
+            value={formData.downloadables[formData.downloadables.length-1]?.supportedVersions || ''}
            />
+            <Textarea
+            className="h-44"
+            placeholder="Changelog" 
+            id="changelog"
+            onChange={(e)=>{setFormData(prevState => ({
+              ...prevState,
+              downloadables: prevState.downloadables.map((item, i) =>
+                i === prevState.downloadables.length - 1 ? { ...item, changelog: e.target.value } : item)
+            }))}}            required
+            />
             <div className="flex gap-4 items-center justify-between border-4 border-custom-dark-orange border-dotted p-3">
             <FileInput type="file"
             onChange={(e) => {

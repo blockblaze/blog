@@ -12,6 +12,8 @@ export function DashPosts(){
     const [showModal , setShowModal] = useState(false);
     const [postIdToDelete , setPostIdToDelete] = useState(null);
 
+    console.log(posts)
+
     useEffect(()=>{
         const fetchPosts = async ()=>{
             const res = await fetch("/api/post/getposts");
@@ -20,6 +22,7 @@ export function DashPosts(){
             if(res.ok){
                 setPosts(data)
                 if(data.length <9) setShowMore(false)
+                  console.log(data)
             }
         }
         fetchPosts();
@@ -40,7 +43,7 @@ export function DashPosts(){
           }
         }else{
           const startIndex = posts.length;
-          const res = await fetch(`/api/post/searchposts?q=${searchQuery}&offset=${startIndex}`);
+          const res = await fetch(`/api/post/getposts?q=${searchQuery}&offset=${startIndex}`);
           const data = await res.json();
           
           if(res.ok){
@@ -65,7 +68,7 @@ export function DashPosts(){
 
         if(searchQuery === '') return;
 
-        const res = await fetch(`/api/post/searchposts?q=${searchQuery}`);
+        const res = await fetch(`/api/post/getposts?q=${searchQuery}`);
         const data = await res.json();
 
         if(res.ok){

@@ -214,7 +214,7 @@ export function CreatePost() {
           <>
             <TextInput
               type="text"
-              placeholder="Supported Minecraft version"
+              placeholder="Supported Minecraft versions"
               id="supported-version"
               required
               onChange={(e)=>{setFormData({...formData , supportedVersions:e.target.value})}}
