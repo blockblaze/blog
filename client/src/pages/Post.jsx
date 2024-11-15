@@ -20,6 +20,7 @@ function Post() {
   const [downloadVersion , setDownloadVersion] = useState("1.0");
   const [ratedPosts,setRatedPosts] = useState([]);
   const [showModal , setShowModal] = useState(false);
+  const [feedback , setFeedback] = useState("");
   const rateElementRef = useRef(null);
   const downloadElementRef = useRef(null);
 
@@ -111,7 +112,16 @@ function Post() {
   };
   
   const handleFeedback = async ()=>{
-
+    const response = await fetch("/api/rate/sendfeedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId: post.postId,
+        feedback: feedback,
+      }),
+    });
+    const data = await response.json();
+    if(data.success) setShowModal(false);
   }
 
 
@@ -317,8 +327,10 @@ function Post() {
                 <Label htmlFor="email" value="Tell me how could I improve this post?" />
               </div>
               <TextInput
-                id="email"
+                id="feedback"
+                type="text"
                 placeholder="Your feedback"
+                onChange={(e)=>setFeedback(e.target.value)}
                 required
               />
             </div>
