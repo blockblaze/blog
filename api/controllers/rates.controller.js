@@ -1,3 +1,6 @@
+import validator from "validator";
+import moment from 'moment';
+
 import { dbconnection } from "../config/dbconnect.js";
 import fetch from "node-fetch";
 
@@ -120,3 +123,47 @@ export const ratePost = async (req, res) => {
     }
   };
   
+
+  export const sendfeedback = async (req, res) => {
+    if (!req.body.feedback) return res.status(400).json({
+      success: false,
+      statusCode: 400,
+      message: "Feedback is required.",
+    });
+  
+    try {
+      // Properly sanitize feedback input
+      let sanitizedFeedback = validator.trim(req.body.feedback);
+      sanitizedFeedback = validator.escape(sanitizedFeedback);
+      sanitizedFeedback = validator.stripLow(sanitizedFeedback, false); // false to keep standard characters
+  
+      // Fetch user's IP
+      const response = await fetch("https://api.ipify.org?format=json");
+      const data = await response.json();
+      const ip = data.ip;
+  
+      // Construct feedback message
+      let feedback = ''; // Use let instead of const to allow modifications
+      if (req.body.postId) feedback += `<h2>This feedback is related to the post id ${req.body.postId}</h2>`;
+      feedback += `<h2>User ip: ${ip}</h2><h2>Send date: ${moment().format("YYYY-MM-DD HH:mm:ss")}</h2> <p>${sanitizedFeedback}</p>`;
+  
+      // Store feedback in the database
+      const query = "INSERT INTO feedbacks (feedback, user_ip) VALUES (?, ?)";
+      const [result] = await dbconnection.promise().query(query, [feedback, ip]);
+  
+      // Respond to the client
+      res.status(201).json({
+        success: true,
+        statusCode: 201,
+        message: "Your feedback has been sent successfully.",
+      });
+  
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        success: false,
+        statusCode: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
