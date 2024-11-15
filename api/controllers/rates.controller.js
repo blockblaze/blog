@@ -9,11 +9,12 @@ export const getPostRating = async (req,res)=>{
         });
 try{
 
-    const [result] = await dbconnection.promise().query('SELECT AVG(rate) AS avgRates FROM rates WHERE post_id = ?', [req.query.postId]);
+    const [result] = await dbconnection.promise().query('SELECT COUNT(*) AS ratingCount, AVG(rate) AS avgRates FROM rates WHERE post_id = ?', [req.query.postId]);
 
     const avgRating = parseFloat(result[0].avgRates).toFixed(1) || 0;
     res.status(200).json({
-        "rating":avgRating
+        "rating":avgRating,
+        "voteCount":result[0].ratingCount
     });
 
 
@@ -31,7 +32,8 @@ return res.status(500).json({
 
 export const ratePost = async (req, res) => {
     // Check if required fields are provided
-    if (!req.body.rate || !req.body.postId) {
+    console.log(req.body)
+    if (!req.body.rating || !req.body.postId) {
       return res.status(400).json({
         success: false,
         statusCode: 400,
@@ -40,7 +42,7 @@ export const ratePost = async (req, res) => {
     }
   
     // Ensure 'rate' is a number
-    if (typeof req.body.rate !== "number") {
+    if (typeof req.body.rating !== "number") {
       return res.status(400).json({
         success: false,
         statusCode: 400,
@@ -49,7 +51,7 @@ export const ratePost = async (req, res) => {
     }
   
     // Check if rate is between 1 and 5
-    if (req.body.rate > 5 || req.body.rate < 1) {
+    if (req.body.rating > 5 || req.body.rating < 1) {
       return res.status(400).json({
         success: false,
         statusCode: 400,
@@ -68,7 +70,18 @@ export const ratePost = async (req, res) => {
       const [checkResult] = await dbconnection.promise().execute(checkQuery, [ip, req.body.postId]);
   
       // If the user has already rated this post, return an error
+      const ratedPostsCookie = req.cookies.ratedPosts || '[]'; // Get cookie or set an empty array
+      const ratedPosts = JSON.parse(ratedPostsCookie); // Parse the cookie value into an array
+      
       if (checkResult.length > 0) {
+        ratedPosts.push(req.body.postId);
+        res.cookie('ratedPosts', JSON.stringify(ratedPosts), {
+          maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+          httpOnly: false, // Allow client-side access
+          secure: process.env.NODE_ENV === 'production', // Only set on HTTPS in production
+          sameSite: 'Strict',
+        });
+        
         return res.status(409).json({
           success: false,
           statusCode: 409, // Conflict is more appropriate here
@@ -78,13 +91,10 @@ export const ratePost = async (req, res) => {
   
       // Insert the user's rating into the database
       const rateQuery = "INSERT INTO rates (rate, user_ip, post_id) VALUES (?, ?, ?)";
-      const rateParams = [req.body.rate, ip, req.body.postId];
+      const rateParams = [req.body.rating, ip, req.body.postId];
       const [rateResult] = await dbconnection.promise().execute(rateQuery, rateParams);
   
     //Store postId in the cookie
-    const ratedPostsCookie = req.cookies.ratedPosts || '[]'; // Get cookie or set an empty array
-    const ratedPosts = JSON.parse(ratedPostsCookie); // Parse the cookie value into an array
-    
     ratedPosts.push(req.body.postId);
     res.cookie('ratedPosts', JSON.stringify(ratedPosts), {
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days

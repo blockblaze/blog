@@ -1,8 +1,10 @@
-import { Button, Dropdown, Spinner } from "flowbite-react";
+import { Button, Dropdown, Label, Modal, Spinner, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { MdOutlineDoubleArrow } from "react-icons/md";
+import Cookies from 'js-cookie';
+
 
 
 function Post() {
@@ -14,9 +16,13 @@ function Post() {
   const [submittedRating, setSubmittedRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [isRateSubmitted, setIsRateSubmitted] = useState(false);
+  const [voteCount , setVoteCount] = useState(0);
   const [downloadVersion , setDownloadVersion] = useState("1.0");
+  const [ratedPosts,setRatedPosts] = useState([]);
+  const [showModal , setShowModal] = useState(false);
   const rateElementRef = useRef(null);
   const downloadElementRef = useRef(null);
+
   const handleScroll = (element) => {
     switch(element){
       case 'rate':
@@ -29,8 +35,21 @@ function Post() {
     }
   };
 
+  const getPostRating = async (postId)=>{
+    const res = await fetch(`/api/rate/getrating?postId=${postId}`);
+    const data = await res.json();
+    setDefaultRating(parseFloat(data.rating) || 0);
+    setSubmittedRating(parseFloat(data.rating) || 0);
+    setVoteCount(data.voteCount)
+  };
+
 
   useEffect(() => {
+    const cookieValue = Cookies.get('ratedPosts');
+    if (cookieValue) {
+      setRatedPosts(JSON.parse(cookieValue));
+    }
+    
     const getPost = async () => {
       setLoading(true);
       const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
@@ -48,9 +67,11 @@ function Post() {
           setLoading(false);
           setError(false);
           setPost(data[0]);
-          setDefaultRating(data[0]?.rating || 3);
-          setSubmittedRating(data[0]?.rating || 3);
-          setDownloadVersion(data[0].downloadables[data[0].downloadables.length-1])
+          getPostRating(data[0].postId)
+          if(data[0].category === "maps" || data[0].category === "scripts"){
+            setDownloadVersion(data[0].downloadables[data[0].downloadables.length-1])
+          }
+
         }
 
       }
@@ -67,9 +88,34 @@ function Post() {
     document.body.removeChild(link); // Cleanup
   };
 
-  const handleRateSubmit =()=>{
+  const handleRateSubmit = async () => {
+    // Send the rating to the backend
+    const response = await fetch("/api/rate/sendrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId: post.postId,
+        rating: submittedRating,
+      }),
+    });
+    const data = await response.json();
 
+    if(data.success){
+      if(submittedRating <3) setShowModal(true);
+  
+      // After submitting, update the UI:
+      setIsRateSubmitted(true); // Mark the rating as submitted
+      setRatedPosts([...ratedPosts, post.postId]); // Add postId to ratedPosts
+      setHover(0); // Remove hover effect
+    }
   };
+  
+  const handleFeedback = async ()=>{
+
+  }
+
+
+
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -99,21 +145,40 @@ function Post() {
         </Link>
 
         <div className="self-center mt-5 flex flex-row gap-2">
+  {[...Array(5)].map((_, index) => {
+    const starValue = index + 1;
+    const isFullStar = starValue <= Math.floor(defaultRating); // Full stars
+    const isHalfStar =
+      starValue === Math.ceil(defaultRating) &&
+      !Number.isInteger(defaultRating); // Half star condition
 
-          {[...Array(5)].map((_, index) => {
-            const starValue = index + 1;
-            return (
-              <FaStar
-                key={starValue}
-                className="text-xl"
-                color={starValue <= defaultRating ? "orange" : "gray"}
-              />
-            );
-          })}
-            <p className="font-bold cursor-pointer underline" onClick={()=>handleScroll("rate")}>
-            {defaultRating.toFixed(1)}
-          </p>
-        </div>
+    return (
+      <div key={starValue} className="relative text-xl">
+        {/* Gray star as background */}
+        <FaStar
+          className="absolute text-gray-400"
+          style={{ zIndex: 0 }}
+        />
+        {/* Orange overlay for half or full stars */}
+        <FaStar
+          className="relative"
+          style={{
+            color: isFullStar || isHalfStar ? "orange" : "gray",
+            clipPath: isHalfStar ? "polygon(0 0, 50% 0, 50% 100%, 0 100%)" : "none",
+            zIndex: 1,
+          }}
+        />
+      </div>
+    );
+  })}
+  <p
+    className="font-bold cursor-pointer underline"
+    onClick={() => handleScroll("rate")}
+  >
+    {voteCount}
+  </p>
+</div>
+
         {post.category === "maps" || post.category === "scripts"?(
           <div className="mx-auto mt-10 flex cursor-pointer" onClick={()=>handleScroll("downloads")}>
             <p className="font-semibold text-lg text-custom-orange hover:underline">Skip to Downloads</p>
@@ -176,34 +241,100 @@ function Post() {
           </div>
         ):null}
 
-        <div ref={rateElementRef} className="flex justify-center flex-col gap-2 mt-3">
-          <p className="self-center text-3xl font-bold">Did you like this post?</p>
-          <p className="self-center text-lg">Rate it by clicking on a star!</p>
-          <div className="flex flex-row gap-2 self-center">
-            {[...Array(5)].map((_, index) => {
-              const starValue = index + 1;
-              return (
-                <FaStar
-                  key={starValue}
-                  className="cursor-pointer text-3xl"
-                  color={starValue <= (hover || submittedRating) ? "orange" : "gray"}
-                  onClick={() => {
-                    // Update submitted rating on click
-                    if (starValue !== submittedRating) { // Only update if different
-                      setSubmittedRating(starValue);
+<div ref={rateElementRef} className="flex justify-center flex-col gap-2 mt-3">
+  <p className="self-center text-3xl font-bold">Did you like this post?</p>
+  <p className="self-center text-lg">Rate it by clicking on a star!</p>
+  <div className="flex flex-row gap-2 self-center">
+    {[...Array(5)].map((_, index) => {
+      const starValue = index + 1;
+      const isFullStar = starValue <= Math.floor(hover || submittedRating); // Full stars
+      const isHalfStar =
+        starValue === Math.ceil(hover || submittedRating) &&
+        !Number.isInteger(hover || submittedRating); // Half star condition
 
-                    }
-                    setIsRateSubmitted(true)
-                  }}
-                  onMouseEnter={() => setHover(starValue)}
-                  onMouseLeave={() => setHover(0)}
-                />
-              );
-            })}
-          </div>
-{isRateSubmitted && <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center w-36 mt-2" onClick={handleRateSubmit}>Submit</button>}
-          <p className="self-center text-lg">Average rating {defaultRating} / 5. Vote count: 555</p>
+      return (
+        <div
+          key={starValue}
+          className={`relative text-3xl ${ratedPosts.includes(post.postId) ? "cursor-default" : "cursor-pointer"}`}
+          onClick={() => {
+            if (!ratedPosts.includes(post.postId) && starValue !== submittedRating) {
+              setSubmittedRating(starValue);
+              setIsRateSubmitted(true);
+            }
+          }}
+          onMouseEnter={() => {
+            if (!ratedPosts.includes(post.postId)) setHover(starValue);
+          }}
+          onMouseLeave={() => {
+            if (!ratedPosts.includes(post.postId)) setHover(0);
+          }}
+        >
+          {/* Gray star as background */}
+          <FaStar className="absolute text-gray-400" style={{ zIndex: 0 }} />
+          {/* Orange overlay for half or full stars */}
+          <FaStar
+            className="relative"
+            style={{
+              color: isFullStar || isHalfStar ? "orange" : "gray",
+              clipPath: isHalfStar
+                ? "polygon(0 0, 50% 0, 50% 100%, 0 100%)"
+                : "none",
+              zIndex: 1,
+            }}
+          />
         </div>
+      );
+    })}
+  </div>
+  {!ratedPosts.includes(post.postId) && isRateSubmitted && (
+    <button
+      className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center w-32 mt-2"
+      onClick={handleRateSubmit}
+    >
+      Submit
+    </button>
+  )}
+  {ratedPosts.includes(post.postId) && (
+    <p className="self-center text-lg  font-semibold mt-1">
+      Thanks for rating this post.
+    </p>
+  )}
+  <p className="self-center text-lg">
+    Average rating {defaultRating} / 5. Vote count: {voteCount}
+  </p>
+</div>
+
+
+<Modal show={showModal} size="md" onClose={()=>setShowModal(false)} popup>
+        <Modal.Header />
+        <Modal.Body>
+          <div className="space-y-6">
+            <h3 className="text-xl font-medium text-gray-900 dark:text-white">I&apos;m sorry you didn&apos;t like this post
+
+</h3>
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="email" value="Tell me how could I improve this post?" />
+              </div>
+              <TextInput
+                id="email"
+                placeholder="Your feedback"
+                required
+              />
+            </div>
+            
+
+            <div className="w-full">
+            <button
+      className="bg-custom-orange text-white p-3 m:p-4 rounded hover:bg-custom-dark-orange font-medium self-center  mt-2"
+      onClick={handleFeedback}
+    >
+      Submit feedback
+    </button>  </div>
+            
+          </div>
+        </Modal.Body>
+      </Modal>
       </main>
       <aside className="bg-gray-200 md:w-80 dark:bg-gray-800 hidden md:block lg:w-96 "></aside>
     </div>
