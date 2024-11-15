@@ -8,6 +8,7 @@ import  contactRoute from "./routes/contacts.route.js";
 import registRoute from "./routes/regist.route.js"
 import authRoute from "./routes/auth.route.js"
 import postRoute from "./routes/post.route.js"
+import rateRoute from "./routes/rates.js";
 const app = express();
 const port = 3000;
 
@@ -20,17 +21,8 @@ app.use(cookieParser());
 app.use("/api/contact",contactRoute)
 app.use("/api",registRoute)
 app.use("/api",authRoute)
+app.use("/api",rateRoute)
 app.use("/api/post",postRoute)
-
-// app.get("/", function (req, res) {
-//   dbconnection.query(
-//     "SELECT * FROM posts WHERE post_id = 2",
-//     function (err, result) {
-//       if (err) return res.status(500).send(err);
-//       res.status(200).json(result);
-//     }
-//   );
-// });
 
 // Start the server
 app.listen(port, (error) => {
