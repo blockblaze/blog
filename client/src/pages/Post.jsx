@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { MdOutlineDoubleArrow } from "react-icons/md";
 import Cookies from 'js-cookie';
-
+import {PostCardSm} from "../components/PostCards";
 
 
 function Post() {
@@ -17,12 +17,14 @@ function Post() {
   const [hover, setHover] = useState(0);
   const [isRateSubmitted, setIsRateSubmitted] = useState(false);
   const [voteCount , setVoteCount] = useState(0);
-  const [downloadVersion , setDownloadVersion] = useState("1.0");
+  const [downloadVersion , setDownloadVersion] = useState(null);
   const [ratedPosts,setRatedPosts] = useState([]);
   const [showModal , setShowModal] = useState(false);
   const [feedback , setFeedback] = useState("");
+  const [recentPosts, setRecentPosts] = useState(null);
   const rateElementRef = useRef(null);
   const downloadElementRef = useRef(null);
+
 
   const handleScroll = (element) => {
     switch(element){
@@ -44,40 +46,57 @@ function Post() {
     setVoteCount(data.voteCount)
   };
 
+  const fetchRecentPosts = async (category,postId) => {
+    const res = await fetch(`/api/post/getposts?limit=3&category=${category}&excludeIds=${postId}`);
+    const data = await res.json();
+    if (res.ok) {
+      setRecentPosts(data);
+    }
+  };
+
 
   useEffect(() => {
-    const cookieValue = Cookies.get('ratedPosts');
-    if (cookieValue) {
-      setRatedPosts(JSON.parse(cookieValue));
-    }
-    
-    const getPost = async () => {
-      setLoading(true);
-      const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
-      const data = await res.json();
-      if (!res.ok) {
-        setLoading(false);
-        setError(data.message);
-        return;
+    try{
+      const cookieValue = Cookies.get('ratedPosts');
+      if (cookieValue) {
+        setRatedPosts(JSON.parse(cookieValue));
+        console.log(JSON.parse(cookieValue))
       }
-      if (res.ok) {
-        if(data.length === 0){
+      
+      const getPost = async () => {
+        setLoading(true);
+        const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
+        const data = await res.json();
+        if (!res.ok) {
           setLoading(false);
-          setError("No post found");
-        }else{
-          setLoading(false);
-          setError(false);
-          setPost(data[0]);
-          getPostRating(data[0].postId)
-          if(data[0].category === "maps" || data[0].category === "scripts"){
-            setDownloadVersion(data[0].downloadables[data[0].downloadables.length-1])
-          }
-
+          setError(data.message);
+          return;
         }
-
-      }
-    };
-    getPost();
+        if (res.ok) {
+          if(data.length === 0){
+            setLoading(false);
+            setError("No post found");
+          }else{
+            setLoading(false);
+            setError(false);
+            setPost(data[0]);
+            getPostRating(data[0].postId)
+            fetchRecentPosts(data[0].category,data[0].postId);
+            if(data[0].category === "maps" || data[0].category === "scripts"){
+              setDownloadVersion(data[0].downloadables[data[0].downloadables.length-1])
+            }
+  
+          }
+  
+        }
+      };
+      getPost();
+    // eslint-disable-next-line no-unused-vars
+    }catch(err){
+      setError("An error happend")
+      setLoading(false);
+    }
+   
   }, [postSlug]);
 
   const handleDownload = () => {
@@ -226,7 +245,7 @@ function Post() {
         <Dropdown label={downloadVersion.version} inline className="border border-slate-800">
           {post.downloadables.map(d=>(
               // eslint-disable-next-line react/jsx-key
-              <Dropdown.Item onClick={()=>{setDownloadVersion(d)}}>{d.version}</Dropdown.Item>
+              <Dropdown.Item onClick={()=>{setDownloadVersion(d)}} key={d.version}>{d.version}</Dropdown.Item>
           ))}
     </Dropdown>
     {downloadVersion && downloadVersion.changelog !==''? (
@@ -243,15 +262,15 @@ function Post() {
     <div className="flex flex-wrap gap-2">
       {downloadVersion.supportedVersions.split(",").map(v=>(
         // eslint-disable-next-line react/jsx-key
-        <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center mt-2" onClick={handleRateSubmit}>{v}</button>
+        <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center mt-2" onClick={handleRateSubmit} key={v}>{v}</button>
       ))}
     </div>
     </div>
-    <button className="download-btn w-40" onClick={handleDownload}>Download</button>
+    <button className="download-btn w-40" onClick={handleDownload}>Download {downloadVersion.version}</button>
           </div>
         ):null}
 
-<div ref={rateElementRef} className="flex justify-center flex-col gap-2 mt-3">
+<div ref={rateElementRef} className="flex justify-center flex-col gap-2 mt-3 border-b border-slate-500 pb-5" >
   <p className="self-center text-3xl font-bold">Did you like this post?</p>
   <p className="self-center text-lg">Rate it by clicking on a star!</p>
   <div className="flex flex-row gap-2 self-center">
@@ -314,6 +333,15 @@ function Post() {
   </p>
 </div>
 
+<div className='flex flex-col justify-center items-center mb-5'>
+        <h1 className='text-2xl font-semibold mt-5 mb-3'>YOU MAY ALSO LIKE...</h1>
+        <div className='flex flex-wrap gap-1 mt-5 justify-center items-stretch'>
+          {recentPosts &&
+            recentPosts.map((post) =><PostCardSm  post={post} key={post.slug}/>)}
+
+          
+        </div>
+      </div>
 
 <Modal show={showModal} size="md" onClose={()=>setShowModal(false)} popup>
         <Modal.Header />

@@ -35,7 +35,6 @@ return res.status(500).json({
 
 export const ratePost = async (req, res) => {
     // Check if required fields are provided
-    console.log(req.body)
     if (!req.body.rating || !req.body.postId) {
       return res.status(400).json({
         success: false,
