@@ -16,7 +16,8 @@ export const getposts = async (req, res) => {
         p.slug, 
         p.category, 
         p.content, 
-        p.thumbnail_url AS thumbnailUrl, 
+        p.thumbnail_url AS thumbnailUrl,
+        p.views,
         p.created_date AS createdDATE, 
         p.updated_date AS updatedDATE
       FROM posts p`;
@@ -59,53 +60,60 @@ export const getposts = async (req, res) => {
     postQuery += ` LIMIT ? OFFSET ?`;
     params = [...params, limit, offset];
 
-    try {
-      // Step 1: Get the distinct posts
-      const [posts] = await dbconnection.promise().query(postQuery, params);
+    // Step 1: Get the distinct posts
+    const [posts] = await dbconnection.promise().query(postQuery, params);
 
-      if (posts.length === 0) {
-        return res.status(200).json([]); // No posts found
-      }
-
-      // Step 2: Get all downloadables for the selected posts
-      const postIds = posts.map(post => post.postId); // Extract postIds
-      const downloadablesQuery = `
-        SELECT 
-          d.post_id AS postId, 
-          d.version, 
-          d.supported_versions AS supportedVersions, 
-          d.file_url AS fileUrl,
-          d.changelog
-        FROM downloadables d
-        WHERE d.post_id IN (?)`; // Use IN clause to get downloadables for all selected posts
-
-      const [downloadables] = await dbconnection.promise().query(downloadablesQuery, [postIds]);
-
-      // Step 3: Group downloadables by postId
-      const downloadablesMap = {};
-      downloadables.forEach(downloadable => {
-        if (!downloadablesMap[downloadable.postId]) {
-          downloadablesMap[downloadable.postId] = [];
-        }
-        downloadablesMap[downloadable.postId].push({
-          version: downloadable.version,
-          supportedVersions: downloadable.supportedVersions,
-          fileUrl: downloadable.fileUrl,
-          changelog: downloadable.changelog
-        });
-      });
-
-      // Step 4: Attach downloadables to the posts
-      const postsWithDownloadables = posts.map(post => ({
-        ...post,
-        downloadables: downloadablesMap[post.postId] || [] // Attach downloadables or an empty array if none
-      }));
-
-      return res.status(200).json(postsWithDownloadables);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal server error" });
+    if (posts.length === 0) {
+      return res.status(200).json([]); // No posts found
     }
+
+    // Step 2: Get all downloadables and their total downloads for the selected posts
+    const postIds = posts.map(post => post.postId); // Extract postIds
+    const downloadablesQuery = `
+      SELECT 
+        d.post_id AS postId, 
+        d.download_id AS downloadId,
+        d.version, 
+        d.supported_versions AS supportedVersions, 
+        d.file_url AS fileUrl,
+        d.changelog,
+        d.downloads,
+        d.created_date AS createdDate,
+        SUM(d.downloads) OVER (PARTITION BY d.post_id) AS totalDownloads
+      FROM downloadables d
+      WHERE d.post_id IN (?)`; // Use IN clause to get downloadables for all selected posts
+
+    const [downloadables] = await dbconnection.promise().query(downloadablesQuery, [postIds]);
+
+    // Step 3: Group downloadables and their total downloads by postId
+    const downloadablesMap = {};
+    downloadables.forEach(downloadable => {
+      if (!downloadablesMap[downloadable.postId]) {
+        downloadablesMap[downloadable.postId] = {
+          downloadables: [],
+          totalDownloads: 0,
+        };
+      }
+      downloadablesMap[downloadable.postId].downloadables.push({
+        version: downloadable.version,
+        downloadId:downloadable.downloadId,
+        supportedVersions: downloadable.supportedVersions,
+        fileUrl: downloadable.fileUrl,
+        changelog: downloadable.changelog,
+        downloads: downloadable.downloads,
+        createdDate: downloadable.createdDate
+      });
+      downloadablesMap[downloadable.postId].totalDownloads = downloadable.totalDownloads;
+    });
+
+    // Step 4: Attach downloadables and total downloads to the posts
+    const postsWithDownloadables = posts.map(post => ({
+      ...post,
+      downloadables: downloadablesMap[post.postId]?.downloadables || [], // Attach downloadables or an empty array if none
+      totalDownloads: downloadablesMap[post.postId]?.totalDownloads || 0, // Attach total downloads or 0 if none
+    }));
+
+    return res.status(200).json(postsWithDownloadables);
   } catch (err) {
     console.error(err);
     res.status(500).json({
@@ -239,6 +247,69 @@ export const updatePost = async (req , res) =>{
   
 
 
+};
+
+export const updatePostActivity = async (req, res) => {
+  const { action } = req.body;
+
+  if (!action) {
+    return res.status(400).json({
+      success: false,
+      message: "Action type is required."
+    });
+  }
+
+  try {
+    let updateQuery;
+    let params = [];
+
+    switch (action) {
+      case 'view':
+        if (!req.body.id) {
+          return res.status(400).json({
+            success: false,
+            message: "Post Id is required."
+          });
+        }
+        updateQuery = `UPDATE posts SET views = views + 1 WHERE post_id = ?`;
+        params.push(req.body.id);
+        break;
+
+      case 'download':
+        if (!req.body.id) {
+          return res.status(400).json({
+            success: false,
+            message: "Download Id is required."
+          });
+        }
+        updateQuery = `UPDATE downloadables SET downloads = downloads + 1 WHERE download_id = ?`;
+        params.push(req.body.id);
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid action type."
+        });
+    }
+
+    // Execute the query to update views or downloads
+    await dbconnection.promise().query(updateQuery, params);
+
+    // Dynamically return the action type in the response message
+    res.status(200).json({
+      success: true,
+      message: `${action.charAt(0).toUpperCase() + action.slice(1)} count updated successfully.`
+    });
+
+  } catch (err) {
+    console.error(err); // Add this for debugging purposes
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Internal server error.",
+    });
+  }
 };
 
 export const deletePost = async (req,res) =>{

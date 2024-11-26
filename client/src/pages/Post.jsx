@@ -3,8 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { MdOutlineDoubleArrow } from "react-icons/md";
-import Cookies from 'js-cookie';
 import {PostCardSm} from "../components/PostCards";
+import { useSelector  , useDispatch } from "react-redux";
+import { addDownloads, addRatedPost, addVisitedPost } from "../redux/user/userActivitySlice";
+
+
+
 
 
 function Post() {
@@ -18,13 +22,16 @@ function Post() {
   const [isRateSubmitted, setIsRateSubmitted] = useState(false);
   const [voteCount , setVoteCount] = useState(0);
   const [downloadVersion , setDownloadVersion] = useState(null);
-  const [ratedPosts,setRatedPosts] = useState([]);
+  // const [ratedPosts,setRatedPosts] = useState([]);
   const [showModal , setShowModal] = useState(false);
   const [feedback , setFeedback] = useState("");
   const [recentPosts, setRecentPosts] = useState(null);
   const rateElementRef = useRef(null);
   const downloadElementRef = useRef(null);
+  const dispatch = useDispatch();
+  const {ratedPosts,downloads,visitedPosts} = useSelector((state)=>state.userActivity);
 
+  console.log(ratedPosts)
 
   const handleScroll = (element) => {
     switch(element){
@@ -55,18 +62,111 @@ function Post() {
   };
 
 
+  const handlePostActivity = async(action,id)=>{
+      switch(action){
+        case 'view':{
+          if(!visitedPosts.includes(id)){
+            const response = await fetch("/api/post/updatepostactivity", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: id,
+                action: 'view',
+              }),
+            });
+            const data = await response.json();
+            
+            if(data.success){
+              dispatch(addVisitedPost(id))
+            }
+          }
+        };break;
+
+        case 'download':{
+          //Download the file
+          const fileUrl = downloadVersion.fileUrl; // URL of the file
+          const link = document.createElement('a');
+          link.href = fileUrl;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link); // Cleanup
+
+          //Add download
+          if(!downloads.includes(id)){
+            const response = await fetch("/api/post/updatepostactivity", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: id,
+                action: 'download',
+              }),
+            });
+            const data = await response.json();
+            
+            if(data.success){
+              dispatch(addDownloads(id));
+            }
+          }
+         
+        };break;
+
+        case 'rate':{
+      // Send the rating to the backend
+    const response = await fetch("/api/rate/sendrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId: post.postId,
+        rating: submittedRating,
+      }),
+    });
+    const data = await response.json();
+
+    if(data.success){
+      if(submittedRating <3) setShowModal(true);
+  
+      // After submitting, update the UI:
+      setIsRateSubmitted(true); // Mark the rating as submitted
+      dispatch(addRatedPost(post.postId));
+      setHover(0); // Remove hover effect
+    }else{
+      // After submitting, update the UI:
+      setIsRateSubmitted(true); // Mark the rating as submitted
+      dispatch(addRatedPost(post.postId));
+      setHover(0); // Remove hover effect
+    }
+        }
+        ;break;
+
+        case 'feedback':{
+          const response = await fetch("/api/rate/sendfeedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              postId: post.postId,
+              feedback: feedback,
+            }),
+          });
+          const data = await response.json();
+          if(data.success) setShowModal(false);
+        }
+        ;break;
+      }
+  }
+
   useEffect(() => {
     try{
-      const cookieValue = Cookies.get('ratedPosts');
-      if (cookieValue) {
-        setRatedPosts(JSON.parse(cookieValue));
-        console.log(JSON.parse(cookieValue))
-      }
+      // const cookieValue = Cookies.get('ratedPosts');
+      // if (cookieValue) {
+      //   setRatedPosts(JSON.parse(cookieValue));
+      //   console.log(JSON.parse(cookieValue))
+      // }
       
       const getPost = async () => {
         setLoading(true);
         const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
         const data = await res.json();
+        console.log(data)
         if (!res.ok) {
           setLoading(false);
           setError(data.message);
@@ -82,6 +182,7 @@ function Post() {
             setPost(data[0]);
             getPostRating(data[0].postId)
             fetchRecentPosts(data[0].category,data[0].postId);
+            handlePostActivity("view",data[0].postId)
             if(data[0].category === "maps" || data[0].category === "scripts"){
               setDownloadVersion(data[0].downloadables[data[0].downloadables.length-1])
             }
@@ -98,51 +199,6 @@ function Post() {
     }
    
   }, [postSlug]);
-
-  const handleDownload = () => {
-    const fileUrl = downloadVersion.fileUrl; // URL of the file
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link); // Cleanup
-  };
-
-  const handleRateSubmit = async () => {
-    // Send the rating to the backend
-    const response = await fetch("/api/rate/sendrate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        postId: post.postId,
-        rating: submittedRating,
-      }),
-    });
-    const data = await response.json();
-
-    if(data.success){
-      if(submittedRating <3) setShowModal(true);
-  
-      // After submitting, update the UI:
-      setIsRateSubmitted(true); // Mark the rating as submitted
-      setRatedPosts([...ratedPosts, post.postId]); // Add postId to ratedPosts
-      setHover(0); // Remove hover effect
-    }
-  };
-  
-  const handleFeedback = async ()=>{
-    const response = await fetch("/api/rate/sendfeedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        postId: post.postId,
-        feedback: feedback,
-      }),
-    });
-    const data = await response.json();
-    if(data.success) setShowModal(false);
-  }
-
 
 
   if (loading)
@@ -240,7 +296,7 @@ function Post() {
         ></div>
 
         {post.category === "maps" || post.category === "scripts"?(
-          <div className="mt-5 flex flex-col gap-1" ref={downloadElementRef}>
+          <div className="mt-5 mb-5 flex flex-col gap-1" id="downloads" ref={downloadElementRef}>
             <p className="mb-3 font-semibold text-lg lg:text-2xl">Select version for download:</p>
         <Dropdown label={downloadVersion.version} inline className="border border-slate-800">
           {post.downloadables.map(d=>(
@@ -262,11 +318,14 @@ function Post() {
     <div className="flex flex-wrap gap-2">
       {downloadVersion.supportedVersions.split(",").map(v=>(
         // eslint-disable-next-line react/jsx-key
-        <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center mt-2" onClick={handleRateSubmit} key={v}>{v}</button>
+        <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center mt-2" key={v}>{v}</button>
       ))}
     </div>
     </div>
-    <button className="download-btn w-40" onClick={handleDownload}>Download {downloadVersion.version}</button>
+    <button className="download-btn w-40" onClick={()=>handlePostActivity("download",downloadVersion.downloadId)}>Download {downloadVersion.version}</button>
+    <p className="self-center text-lg font-semibold">
+      Downloads of this version: {downloadVersion.downloads}
+    </p>
           </div>
         ):null}
 
@@ -318,7 +377,7 @@ function Post() {
   {!ratedPosts.includes(post.postId) && isRateSubmitted && (
     <button
       className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium self-center w-32 mt-2"
-      onClick={handleRateSubmit}
+      onClick={()=>handlePostActivity("rate")}
     >
       Submit
     </button>
@@ -367,7 +426,7 @@ function Post() {
             <div className="w-full">
             <button
       className="bg-custom-orange text-white p-3 m:p-4 rounded hover:bg-custom-dark-orange font-medium self-center  mt-2"
-      onClick={handleFeedback}
+      onClick={()=>handlePostActivity("feedback")}
     >
       Submit feedback
     </button>  </div>

@@ -72,17 +72,17 @@ export const ratePost = async (req, res) => {
       const [checkResult] = await dbconnection.promise().execute(checkQuery, [ip, req.body.postId]);
   
       // If the user has already rated this post, return an error
-      const ratedPostsCookie = req.cookies.ratedPosts || '[]'; // Get cookie or set an empty array
-      const ratedPosts = JSON.parse(ratedPostsCookie); // Parse the cookie value into an array
+      // const ratedPostsCookie = req.cookies.ratedPosts || '[]'; // Get cookie or set an empty array
+      // const ratedPosts = JSON.parse(ratedPostsCookie); // Parse the cookie value into an array
       
       if (checkResult.length > 0) {
-        ratedPosts.push(req.body.postId);
-        res.cookie('ratedPosts', JSON.stringify(ratedPosts), {
-          maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-          httpOnly: false, // Allow client-side access
-          secure: process.env.NODE_ENV === 'production', // Only set on HTTPS in production
-          sameSite: 'Strict',
-        });
+        // ratedPosts.push(req.body.postId);
+        // res.cookie('ratedPosts', JSON.stringify(ratedPosts), {
+        //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+        //   httpOnly: false, // Allow client-side access
+        //   secure: process.env.NODE_ENV === 'production', // Only set on HTTPS in production
+        //   sameSite: 'Strict',
+        // });
         
         return res.status(409).json({
           success: false,
@@ -96,14 +96,14 @@ export const ratePost = async (req, res) => {
       const rateParams = [req.body.rating, ip, req.body.postId];
       const [rateResult] = await dbconnection.promise().execute(rateQuery, rateParams);
   
-    //Store postId in the cookie
-    ratedPosts.push(req.body.postId);
-    res.cookie('ratedPosts', JSON.stringify(ratedPosts), {
-      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-      httpOnly: false, // Allow client-side access
-      secure: process.env.NODE_ENV === 'production', // Only set on HTTPS in production
-      sameSite: 'Strict',
-    });
+    // //Store postId in the cookie
+    // ratedPosts.push(req.body.postId);
+    // res.cookie('ratedPosts', JSON.stringify(ratedPosts), {
+    //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    //   httpOnly: false, // Allow client-side access
+    //   secure: process.env.NODE_ENV === 'production', // Only set on HTTPS in production
+    //   sameSite: 'Strict',
+    // });
 
       // Respond with success
       res.status(200).json({
