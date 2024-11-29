@@ -151,7 +151,6 @@ export const getstats = async (req, res) => {
 
     // Calculate current month key (e.g., "2024-11")
     const currentMonthKey = `${now.getFullYear()}-${('0' + (now.getMonth() + 1)).slice(-2)}`;
-    console.log(currentMonthKey)
     // Get top 5 posts based on views for the current month in views_snapshot
     const [topViewedPosts] = await dbconnection.promise().query(`
       SELECT post_id AS postId, title, slug,thumbnail_url AS thumbnailUrl, views_snapshot

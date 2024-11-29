@@ -122,6 +122,69 @@ export const ratePost = async (req, res) => {
     }
   };
   
+export const getfeedbacks = async (req , res)=>{
+ const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit) || 9;
+  
+  try {
+  if(req.query.format == 'count'){
+    const now = new Date();
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0); // last day of the last month
+
+    let countQuery = `SELECT COUNT(feedback_id) AS totalFeedBacks FROM feedbacks`
+    let lastMonthCountQuery = `SELECT COUNT(*) AS lastMonthFeedbacks FROM feedbacks WHERE submission_date BETWEEN ? AND ?`
+    const [count] = await dbconnection.promise().query(countQuery);
+    const [lastMonthCount] = await dbconnection.promise().query(lastMonthCountQuery,[lastMonthStart,lastMonthEnd]);
+
+    const data ={
+      totalFeedbacks:count[0].totalFeedBacks,
+      lastMonthCount:lastMonthCount[0].lastMonthFeedbacks
+    }
+    res.status(200).json({"success":true,"data":data});
+  }else{
+  // Step 1: Query to get contacts
+  let feedbackQuery = `
+  SELECT f.feedback_id AS feedbackId,
+    f.feedback,
+    f.user_ip AS userIp,
+    p.title,
+    p.slug
+      FROM feedbacks f 
+        LEFT JOIN posts p ON f.related_post = p.post_id`;
+  
+  let params = [];
+  
+  // Validate the order value and prevent SQL injection
+  const order = req.query.order === "asc" ? "ASC" : "DESC";
+  feedbackQuery += ` ORDER BY submission_date ${order}`;
+  
+  // Add limit and offset
+  feedbackQuery += ` LIMIT ? OFFSET ?`;
+  params = [...params, limit, offset];
+  
+  
+  const [posts] = await dbconnection.promise().query(feedbackQuery, params);
+
+
+  
+  if (posts.length === 0) {
+    return res.status(200).json([]); // No posts found
+  }
+  
+  return res.status(200).json(posts);
+    }
+  
+
+  } catch (err) {
+  console.error(err);
+  res.status(500).json({
+    success: false,
+    statusCode: 500,
+    message: "Internal server error.",
+  });
+  }
+  };
 
   export const sendfeedback = async (req, res) => {
     if (!req.body.feedback) return res.status(400).json({
@@ -142,13 +205,11 @@ export const ratePost = async (req, res) => {
       const ip = data.ip;
   
       // Construct feedback message
-      let feedback = ''; // Use let instead of const to allow modifications
-      if (req.body.postId) feedback += `<h2>This feedback is related to the post id ${req.body.postId}</h2>`;
-      feedback += `<h2>User ip: ${ip}</h2><h2>Send date: ${moment().format("YYYY-MM-DD HH:mm:ss")}</h2> <p>${sanitizedFeedback}</p>`;
+      let feedback = sanitizedFeedback; 
   
       // Store feedback in the database
-      const query = "INSERT INTO feedbacks (feedback, user_ip) VALUES (?, ?)";
-      const [result] = await dbconnection.promise().query(query, [feedback, ip]);
+      const query = "INSERT INTO feedbacks (feedback, user_ip,related_post) VALUES (?,?,?)";
+      const [result] = await dbconnection.promise().query(query, [feedback, ip,req.body.postId || null]);
   
       // Respond to the client
       res.status(201).json({

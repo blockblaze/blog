@@ -31,8 +31,6 @@ function Post() {
   const dispatch = useDispatch();
   const {ratedPosts,downloads,visitedPosts} = useSelector((state)=>state.userActivity);
 
-  console.log(ratedPosts)
-
   const handleScroll = (element) => {
     switch(element){
       case 'rate':
@@ -156,17 +154,10 @@ function Post() {
 
   useEffect(() => {
     try{
-      // const cookieValue = Cookies.get('ratedPosts');
-      // if (cookieValue) {
-      //   setRatedPosts(JSON.parse(cookieValue));
-      //   console.log(JSON.parse(cookieValue))
-      // }
-      
       const getPost = async () => {
         setLoading(true);
         const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
         const data = await res.json();
-        console.log(data)
         if (!res.ok) {
           setLoading(false);
           setError(data.message);

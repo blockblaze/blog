@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import Login from "../components/Login";
 import { DashSidebar } from "../components/DashSidebar";
-import { DashMain } from "../components/DashMain";
 import { useLocation } from "react-router-dom";
 import { CreatePost } from "../components/CreatePost";
 import { DashPosts } from "../components/DashPosts";
 import { UpdatePost } from "../components/UpdatePost";
+import DashboardComp from "../components/DashBoardComp";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
@@ -50,11 +50,11 @@ function Dashboard() {
       <div className="md:w-56">
       <DashSidebar location={tab}/>
       </div>
-      {tab === '' && <DashMain/>}
+      {tab === '' && <DashboardComp/>}
       {tab === 'create' && <CreatePost/>}
       {tab === 'posts' && <DashPosts/>}
       {tab === "update" && <UpdatePost/>}
-      {tab === 'stats' && <DashMain/>}
+      {tab === 'stats' && <DashboardComp/>}
 
 
     </div>

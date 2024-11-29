@@ -5,7 +5,7 @@ import { verifyToken } from "../utils/verfiyToken.js";
 const router = express.Router();
 
 router.get("/getposts",getposts);
-router.get("/stats",getstats);
+router.get("/stats",verifyToken,getstats);
 router.post("/create",verifyToken,createPost);
 router.post("/update",verifyToken,updatePost);
 router.post("/updatepostactivity",updatePostActivity);
