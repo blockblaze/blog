@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import {
   HiAnnotation,
   HiArrowNarrowUp,
@@ -119,8 +118,8 @@ export default function DashboardComp() {
         </div>
 
       </div>
-      <div className='flex flex-wrap py-3 mx-auto justify-evenly'>
-        <div className='flex flex-col w-full md:w-auto shadow-md p-2 rounded-md dark:bg-gray-800'>
+      <div className='flex flex-wrap py-3 mx-auto justify-evenly gap-2'>
+        <div className='flex flex-col w-full lg:max-w-96 shadow-md p-2 rounded-md dark:bg-gray-800'>
           <div className='flex justify-between  p-3 text-sm font-semibold'>
             <h1 className='text-center p-2'>Top viewed posts</h1>
             <Button outline gradientDuoTone='purpleToPink'>
@@ -153,7 +152,7 @@ export default function DashboardComp() {
               ))}
           </Table>
         </div>
-        <div className='flex flex-col w-full md:w-auto shadow-md p-2 rounded-md dark:bg-gray-800'>
+        <div className='flex flex-col w-full lg:max-w-96 md:w-auto shadow-md p-2 rounded-md dark:bg-gray-800'>
           <div className='flex justify-between  p-3 text-sm font-semibold'>
             <h1 className='text-center p-2'>Recent feedbacks</h1>
             <Button outline gradientDuoTone='purpleToPink'>

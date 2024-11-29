@@ -67,3 +67,33 @@ export const sendContact  = (req,res)=>{
   }
 
 }
+
+export const deleteContact = async(req,res)=>{
+const contactId = req.params.contactId;
+
+if(!contactId) return res.status(400).json({
+  success: false,
+  statusCode: 400,
+  message: "Contact id is required.",
+});
+
+try{
+  // Delete from posts table
+  const deleteContactQuery = "DELETE FROM contacts WHERE contact_id = ?";
+  const [deleteContactResult] = await dbconnection.promise().execute(deleteContactQuery, [contactId]);
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Contact has been deleted successfully.",
+  });
+
+} catch (error) {
+  console.error(error);
+  res.status(500).json({
+    success: false,
+    statusCode: 500,
+    message: "Internal server error.",
+  });
+}
+};

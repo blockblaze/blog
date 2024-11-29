@@ -7,6 +7,7 @@ import { CreatePost } from "../components/CreatePost";
 import { DashPosts } from "../components/DashPosts";
 import { UpdatePost } from "../components/UpdatePost";
 import DashboardComp from "../components/DashBoardComp";
+import { DashContacts } from "../components/DashContacts";
 
 function Dashboard() {
   const [isAuth , setIsAuth] = useState(false);
@@ -54,6 +55,7 @@ function Dashboard() {
       {tab === 'create' && <CreatePost/>}
       {tab === 'posts' && <DashPosts/>}
       {tab === "update" && <UpdatePost/>}
+      {tab === "contacts" && <DashContacts/>}
       {tab === 'stats' && <DashboardComp/>}
 
 

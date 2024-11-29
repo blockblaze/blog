@@ -418,6 +418,10 @@ export const deletePost = async (req,res) =>{
     // Delete from downloadables table
     const deleteDownloadablesQuery = "DELETE FROM downloadables WHERE post_id = ?";
     const [deleteDownloadablesResult] = await dbconnection.promise().execute(deleteDownloadablesQuery, [postId]);
+    
+    // Delete from feedbacks table
+    const deleteFeedbackQuery = "DELETE FROM feedbacks WHERE feedback = ?";
+    const [deleteFeedbackResult] = await dbconnection.promise().execute(deleteFeedbackQuery, [postId]);
 
     // Delete from posts table
     const deletePostQuery = "DELETE FROM posts WHERE post_id = ?";

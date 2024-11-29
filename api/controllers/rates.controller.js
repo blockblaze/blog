@@ -148,6 +148,7 @@ export const getfeedbacks = async (req , res)=>{
   SELECT f.feedback_id AS feedbackId,
     f.feedback,
     f.user_ip AS userIp,
+    f.submission_date AS submissionDate,
     p.title,
     p.slug
       FROM feedbacks f 
@@ -186,7 +187,7 @@ export const getfeedbacks = async (req , res)=>{
   }
   };
 
-  export const sendfeedback = async (req, res) => {
+export const sendfeedback = async (req, res) => {
     if (!req.body.feedback) return res.status(400).json({
       success: false,
       statusCode: 400,
@@ -226,4 +227,34 @@ export const getfeedbacks = async (req , res)=>{
         message: "Internal server error.",
       });
     }
-  };
+};
+
+export const deletefeedback = async (req,res)=>{
+  const feedbackId = req.params.feedbackId;
+
+  if(!feedbackId) return res.status(400).json({
+    success: false,
+    statusCode: 400,
+    message: "Feedback id is required.",
+  });
+
+  try{
+    // Delete from posts table
+    const deleteFeedbackQuery = "DELETE FROM feedbacks WHERE feedback_id = ?";
+    const [deleteFeedbackResult] = await dbconnection.promise().execute(deleteFeedbackQuery, [feedbackId]);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Feedback has been deleted successfully.",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Internal server error.",
+    });
+  }
+};

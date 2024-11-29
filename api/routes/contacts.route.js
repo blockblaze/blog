@@ -1,6 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { getContacts, sendContact } from "../controllers/contacts.controller.js";
+import { deleteContact, getContacts, sendContact } from "../controllers/contacts.controller.js";
 import { verifyToken } from "../utils/verfiyToken.js";
 
 const rateLimiter = rateLimit({
@@ -15,5 +15,7 @@ const router = express.Router();
 
 router.get("/getcontacts",verifyToken,getContacts)
 router.post("/sendcontact",rateLimiter,sendContact)
+router.delete("/deletecontact/:contactId",verifyToken,deleteContact)
+
 
 export default router;

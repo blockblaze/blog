@@ -12,8 +12,6 @@ export function DashPosts(){
     const [showModal , setShowModal] = useState(false);
     const [postIdToDelete , setPostIdToDelete] = useState(null);
 
-    console.log(posts)
-
     useEffect(()=>{
         const fetchPosts = async ()=>{
             const res = await fetch("/api/post/getposts");
@@ -22,7 +20,6 @@ export function DashPosts(){
             if(res.ok){
                 setPosts(data)
                 if(data.length <9) setShowMore(false)
-                  console.log(data)
             }
         }
         fetchPosts();
@@ -126,6 +123,7 @@ export function DashPosts(){
                 <Table.HeadCell>Post thumbnail</Table.HeadCell>
                 <Table.HeadCell>Post title</Table.HeadCell>
                 <Table.HeadCell>Category</Table.HeadCell>
+                <Table.HeadCell>Views</Table.HeadCell>
                 <Table.HeadCell>
                     <span>Delete</span>
                 </Table.HeadCell>
@@ -156,6 +154,7 @@ export function DashPosts(){
                     </Link>
                   </Table.Cell>
                   <Table.Cell>{post.category}</Table.Cell>
+                  <Table.Cell>{post.views}</Table.Cell>
                   <Table.Cell>
                     <span className="font-medium text-red-500 hover:underline cursor-pointer"
                     onClick={()=>{setPostIdToDelete(post.postId);setShowModal(true)}}

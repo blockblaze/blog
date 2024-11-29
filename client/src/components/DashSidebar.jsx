@@ -2,8 +2,7 @@
 import { Sidebar } from "flowbite-react";
 import { MdCreateNewFolder } from "react-icons/md";
 import { PiSignOutBold } from "react-icons/pi";
-import { IoIosContacts } from "react-icons/io";
-import { HiDocumentText } from "react-icons/hi";
+import { HiDocumentText , HiAnnotation } from "react-icons/hi";
 import { FcStatistics } from "react-icons/fc";
 import { Link } from "react-router-dom"
 
@@ -27,8 +26,8 @@ export function DashSidebar(props) {
     </Sidebar.Item>
     </Link>
     <Link to="/dashboard?tab=contacts">
-    <Sidebar.Item icon={IoIosContacts} active={props.location ==="contacts"} as="div">
-        Manage Contacts
+    <Sidebar.Item icon={HiAnnotation} active={props.location ==="contacts"} as="div">
+        Contacts & Feedbacks
     </Sidebar.Item>
     </Link>
     <Link to="/dashboard?tab=stats">
