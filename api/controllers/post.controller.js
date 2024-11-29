@@ -124,6 +124,94 @@ export const getposts = async (req, res) => {
   }
 };
 
+export const getstats = async (req, res) => {
+  try {
+    const now = new Date();
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0); // last day of the last month
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentMonthEnd = now;
+
+    // Format dates for comparison in MySQL
+    const lastMonthStartFormatted = lastMonthStart.toISOString().split('T')[0];
+    const lastMonthEndFormatted = lastMonthEnd.toISOString().split('T')[0];
+    const currentMonthStartFormatted = currentMonthStart.toISOString().split('T')[0];
+    const currentMonthEndFormatted = currentMonthEnd.toISOString().split('T')[0];
+
+    const [stats] = await dbconnection.promise().query(`
+      SELECT 
+        COUNT(*) AS totalPosts,
+        SUM(CASE WHEN created_date BETWEEN ? AND ? THEN 1 ELSE 0 END) AS lastMonthPosts,
+        SUM(views) AS totalViews
+      FROM posts
+    `, [
+      lastMonthStartFormatted, lastMonthEndFormatted,
+      currentMonthStartFormatted, currentMonthEndFormatted
+    ]);
+
+    // Calculate current month key (e.g., "2024-11")
+    const currentMonthKey = `${now.getFullYear()}-${('0' + (now.getMonth() + 1)).slice(-2)}`;
+    console.log(currentMonthKey)
+    // Get top 5 posts based on views for the current month in views_snapshot
+    const [topViewedPosts] = await dbconnection.promise().query(`
+      SELECT post_id AS postId, title, slug,thumbnail_url AS thumbnailUrl, views_snapshot
+      FROM posts 
+      WHERE JSON_UNQUOTE(JSON_EXTRACT(views_snapshot, '$.${currentMonthKey}')) IS NOT NULL
+      ORDER BY JSON_UNQUOTE(JSON_EXTRACT(views_snapshot, '$.${currentMonthKey}')) DESC
+      LIMIT 5
+    `);
+
+    // Process the top viewed posts and extract views for this month
+    const topPostsWithViews = topViewedPosts.map(post => {
+      const viewsThisMonth = JSON.parse(post.views_snapshot)[currentMonthKey] || 0;
+      return {
+        postId: post.postId,
+        title: post.title,
+        slug: post.slug,
+        thumbnailUrl: post.thumbnailUrl,
+        views: viewsThisMonth
+      };
+    });
+
+    // Retrieve the views snapshot for last month (e.g., "2024-10")
+    const [viewsSnapshot] = await dbconnection.promise().query(`
+      SELECT views_snapshot FROM posts
+    `);
+
+    let lastMonthViewsSnapshot = 0;
+
+    // Calculate views for last month using the snapshot data
+    if (viewsSnapshot.length > 0) {
+      viewsSnapshot.forEach((post) => {
+        const snapshot = JSON.parse(post.views_snapshot || '{}');
+        const lastMonthSnapshotKey = `${lastMonthStart.getFullYear()}-${('0' + (lastMonthStart.getMonth() + 1)).slice(-2)}`;
+
+        // Check if the key exists for the last month in the views_snapshot JSON
+        if (snapshot.hasOwnProperty(lastMonthSnapshotKey)) {
+          lastMonthViewsSnapshot += snapshot[lastMonthSnapshotKey];
+        }
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalPosts: stats[0]?.totalPosts || 0,
+        lastMonthPosts: parseInt(stats[0]?.lastMonthPosts) || 0,
+        topViewedPosts: topPostsWithViews,
+        totalViews: parseInt(stats[0]?.totalViews) || 0,
+        lastMonthViews: lastMonthViewsSnapshot || 0,
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+};
 
 export const createPost = async (req, res) => {
   try {
@@ -250,12 +338,19 @@ export const updatePost = async (req , res) =>{
 };
 
 export const updatePostActivity = async (req, res) => {
-  const { action } = req.body;
+  const { action, id } = req.body;
 
   if (!action) {
     return res.status(400).json({
       success: false,
       message: "Action type is required."
+    });
+  }
+
+  if (!id) {
+    return res.status(400).json({
+      success: false,
+      message: "Post Id is required."
     });
   }
 
@@ -265,25 +360,23 @@ export const updatePostActivity = async (req, res) => {
 
     switch (action) {
       case 'view':
-        if (!req.body.id) {
-          return res.status(400).json({
-            success: false,
-            message: "Post Id is required."
-          });
-        }
-        updateQuery = `UPDATE posts SET views = views + 1 WHERE post_id = ?`;
-        params.push(req.body.id);
+        // Update the views count
+        updateQuery = `
+          UPDATE posts 
+          SET views = views + 1, 
+              views_snapshot = JSON_SET(
+                IFNULL(views_snapshot, '{}'), 
+                CONCAT('$.', DATE_FORMAT(NOW(), '%Y-%m')), 
+                COALESCE(JSON_EXTRACT(views_snapshot, CONCAT('$.', DATE_FORMAT(NOW(), '%Y-%m'))) + 1, 1)
+              ) 
+          WHERE post_id = ?
+        `;
+        params.push(id);
         break;
 
       case 'download':
-        if (!req.body.id) {
-          return res.status(400).json({
-            success: false,
-            message: "Download Id is required."
-          });
-        }
         updateQuery = `UPDATE downloadables SET downloads = downloads + 1 WHERE download_id = ?`;
-        params.push(req.body.id);
+        params.push(id);
         break;
 
       default:
@@ -293,17 +386,17 @@ export const updatePostActivity = async (req, res) => {
         });
     }
 
-    // Execute the query to update views or downloads
+    // Execute the query
     await dbconnection.promise().query(updateQuery, params);
 
-    // Dynamically return the action type in the response message
+    // Response
     res.status(200).json({
       success: true,
       message: `${action.charAt(0).toUpperCase() + action.slice(1)} count updated successfully.`
     });
 
   } catch (err) {
-    console.error(err); // Add this for debugging purposes
+    console.error(err);
     res.status(500).json({
       success: false,
       statusCode: 500,

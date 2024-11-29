@@ -1,6 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { registEmail } from "../controllers/regist.controller.js";
+import { getContacts, sendContact } from "../controllers/contacts.controller.js";
+import { verifyToken } from "../utils/verfiyToken.js";
 
 const rateLimiter = rateLimit({
 windowMs: 6 * 60 * 60 * 1000, // 6 hours
@@ -12,6 +13,7 @@ message: "Too many requests from this IP, please try again after 6 hours.",
 
 const router = express.Router();
 
-router.post("/sendContact",rateLimiter,registEmail)
+router.get("/getcontacts",verifyToken,getContacts)
+router.post("/sendcontact",rateLimiter,sendContact)
 
 export default router;
