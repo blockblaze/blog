@@ -1,6 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { login } from "../controllers/auth.controller.js";
+import { login, signout } from "../controllers/auth.controller.js";
 import { verifyToken } from "../utils/verfiyToken.js";
 
 const rateLimiter = rateLimit({
@@ -13,9 +13,10 @@ message: "Too many requests from this IP, please try again after 10 minutes.",
 
 const router = express.Router();
 
-router.post("/login",rateLimiter,login)
+router.post("/login",rateLimiter,login);
+router.post("/signout",rateLimiter,signout);
 router.get("/dashboard",verifyToken,(req,res)=>{
     res.json({ success: true, message: "Welcome to the dashboard", user: req.user });
-})
+});
 
 export default router;

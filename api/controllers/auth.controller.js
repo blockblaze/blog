@@ -43,3 +43,14 @@ export const login = async (req, res) => {
     return res.status(500).json({ success: false, statusCode: 500, message: "Server error." });
   }
 };
+
+export const signout = (req, res, next) => {
+  try {
+    res
+      .clearCookie('access_token')
+      .status(200)
+      .json('User has been signed out');
+  } catch (error) {
+    next(error);
+  }
+};
