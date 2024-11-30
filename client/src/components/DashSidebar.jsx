@@ -11,6 +11,22 @@ import { Link } from "react-router-dom"
 
 export function DashSidebar(props) {
 
+
+    const handleSignout = async () => {
+        try {
+            const res = await fetch('/api/signout', {
+              method: 'POST',
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              console.log(data.message);
+            }
+            window.location.reload();
+          } catch (error) {
+            console.log(error.message);
+          }
+    };
+
   return (
 <Sidebar  className="w-full md:w-56">
 <Sidebar.Items >
@@ -35,7 +51,7 @@ export function DashSidebar(props) {
     Statistics
     </Sidebar.Item>
     </Link>
-    <Sidebar.Item icon={PiSignOutBold}  as="div">
+    <Sidebar.Item icon={PiSignOutBold}  as="div" onClick={handleSignout}>
         Sign out
     </Sidebar.Item>
 </Sidebar.ItemGroup>

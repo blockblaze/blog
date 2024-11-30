@@ -14,7 +14,7 @@ message: "Too many requests from this IP, please try again after 10 minutes.",
 const router = express.Router();
 
 router.post("/login",rateLimiter,login);
-router.post("/signout",rateLimiter,signout);
+router.post("/signout",signout);
 router.get("/dashboard",verifyToken,(req,res)=>{
     res.json({ success: true, message: "Welcome to the dashboard", user: req.user });
 });
