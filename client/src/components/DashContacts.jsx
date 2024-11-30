@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
-import { Table , Button , Modal } from "flowbite-react";
+import { Table , Button , Modal , Textarea, Alert } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Dropdown } from "flowbite-react";
 import { Card } from "flowbite-react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 
 export function DashContacts(){
@@ -16,9 +18,9 @@ export function DashContacts(){
     const [showContactModal , setShowContactModal] = useState(false);
     const [idToDelete , setIdToDelete] = useState(null);
     const [contactMessage, setContactMessage] = useState('');
-    const [contactIdToRespond , setDontactIdToRespond] = useState(null);
-
-    console.log(idToDelete)
+    const [contactIdToRespond , setContactIdToRespond] = useState(null);
+    const [contactResponse, setContactResponse] = useState(null);
+    const [error , setError] = useState(null);
 
     const fetchContacts = async ()=>{
         const res = await fetch("/api/contact/getcontacts?order=asc");
@@ -53,7 +55,7 @@ export function DashContacts(){
     }
 
     useEffect(()=>{
-        fetchContacts()
+        fetchContacts();
     },[])
 
     const handleShowMore = async ()=>{
@@ -148,15 +150,38 @@ export function DashContacts(){
 
     const handleShowContactModal = async (msg,id)=>{
         setContactMessage(msg);
-        setDontactIdToRespond(id);
+        setContactIdToRespond(id);
         setShowContactModal(true);
     }
+
+    const handleContactRespond = async()=>{
+      try{
+        const respone = await fetch('/api/contact/respond',{
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:JSON.stringify({
+            contactId: contactIdToRespond,
+            response: contactResponse,
+          }),
+      })
+      const data = await respone.json();
+      if(data.success){
+        setIdToDelete(contactIdToRespond);
+        handleDelete();
+        showContactModal(false);
+      }else{
+        setError(data.data.message);
+      }
+      }catch(err){
+        console.log(err)
+      }
+    };
 
     return(
 
         <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'">
             <div className="mt-3 mb-10 ml-2">
-            <Dropdown label="Dropdown" inline>
+            <Dropdown label="Type" inline>
         <Dropdown.Item onClick={()=>handleShowType("contacts")}>Contacts</Dropdown.Item>
         <Dropdown.Item onClick={()=>handleShowType("feedbacks")}>Feedbacks</Dropdown.Item>
         </Dropdown>
@@ -277,12 +302,28 @@ export function DashContacts(){
           <div className="space-y-6">
           {contactMessage}
           </div>
+          
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="flex flex-col items-start">
+          <form className="w-full mb-3" onClick={handleContactRespond}>
+          <ReactQuill
+          theme='snow'
+          placeholder='Write something...'
+          className='h-32 mb-12'
+          required
+          onChange={(value) => {
+            setContactResponse(value);
+          }}
+        />
+          </form>
+          {error  && <Alert color="failure" className="min-w-full mb-2">{error}</Alert>}
+
+          <div className="flex flex-row gap-2">
           <Button color="success" onClick={respondContact}>Respond</Button>
           <Button color="failure" onClick={()=>handleDelete()}>
             Delete
           </Button>
+          </div>
         </Modal.Footer>
       </Modal>
         </div>
