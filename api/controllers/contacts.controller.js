@@ -1,4 +1,5 @@
 import { dbconnection } from "../config/dbconnect.js";
+import { transporter } from "../config/mail.js";
 
 export const getContacts = async(req,res)=>{
 const offset = parseInt(req.query.offset) || 0;
@@ -13,7 +14,8 @@ let contactQuery = `
  contact_name AS contactName, 
  contact_email AS contactEmail, 
  subject, 
- message, 
+ message,
+ is_responded AS isResponded,
  submission_date AS submissionDate 
  FROM contacts`;
 
@@ -33,13 +35,13 @@ contactQuery += ` LIMIT ? OFFSET ?`;
 params = [...params, limit, offset];
 
 
-const [posts] = await dbconnection.promise().query(contactQuery, params);
+const [contacts] = await dbconnection.promise().query(contactQuery, params);
 
-if (posts.length === 0) {
+if (contacts.length === 0) {
   return res.status(200).json([]); // No posts found
 }
 
-return res.status(200).json(posts);
+return res.status(200).json(contacts);
 } catch (err) {
 console.error(err);
 res.status(500).json({
@@ -66,6 +68,44 @@ export const sendContact  = (req,res)=>{
     res.status(500).json({sucess:false,statusCode:500,message:"Internal server error!"})
   }
 
+}
+
+export const respondContact = async (req,res)=>{
+  let contactId = req.body.contactId;
+  let respone = req.body.response;
+  if(!contactId || !respone) return res.status(400).json({sucess:false,statusCode:400,message:"All fields are required."});
+  try{
+    //Get the email of the contact
+    const getEmailQuery = "SELECT contact_email AS email FROM contacts WHERE contact_id = ?";
+    const [getEmailResult] = await dbconnection.promise().query(getEmailQuery,[contactId]);
+    const contactEmail = getEmailResult[0].email;
+
+    //Send a mail
+    const info = await transporter.sendMail({
+      from: '"Blockblaze" <contact@blockblaze.net>', // Sender address
+      to:contactEmail,
+      subject:"Thanks for contacting me.", // Subject line
+      html: respone, // HTML body
+    });
+
+    //Mark as responded
+    const respondedQuery = "UPDATE contacts SET is_responded = true WHERE contact_id = ?"
+    const [respondedResult] = await dbconnection.promise().query(respondedQuery,[contactId]);
+    res.status(200).json({
+      success: true,
+      statusCode: 500,
+      message: "Contact has been responded.",
+    });
+
+
+  }catch(err){
+  console.error(err);
+  res.status(500).json({
+  success: false,
+  statusCode: 500,
+  message: "Internal server error.",
+});
+  }
 }
 
 export const deleteContact = async(req,res)=>{

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Table , Button , Modal , Textarea, Alert } from "flowbite-react";
+import { Table , Button , Modal , Alert } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Dropdown } from "flowbite-react";
@@ -145,16 +145,14 @@ export function DashContacts(){
           }
     };
 
-    const respondContact = async ()=>{
-    };
-
     const handleShowContactModal = async (msg,id)=>{
         setContactMessage(msg);
         setContactIdToRespond(id);
         setShowContactModal(true);
     }
 
-    const handleContactRespond = async()=>{
+    const handleContactRespond = async(e)=>{
+      e.preventDefault();
       try{
         const respone = await fetch('/api/contact/respond',{
           method: 'POST',
@@ -165,12 +163,11 @@ export function DashContacts(){
           }),
       })
       const data = await respone.json();
+      console.log(data.success)
       if(data.success){
-        setIdToDelete(contactIdToRespond);
-        handleDelete();
-        showContactModal(false);
+        setShowContactModal(false);
       }else{
-        setError(data.data.message);
+        setError(data.message);
       }
       }catch(err){
         console.log(err)
@@ -200,7 +197,7 @@ export function DashContacts(){
                   <div className="shrink-0">
                   </div>
                   <div className="min-w-0 flex-1 cursor-pointer" onClick={()=>{handleShowContactModal(contact.message,contact.contactId); setIdToDelete(contact.contactId)}}>
-                    <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{contact.contactName} ({contact.contactEmail})</p>
+                    <p className={`${contact.isResponded? "text-green-400":"text-red-400"} truncate text-sm font-medium`}>{contact.contactName} ({contact.contactEmail})</p>
                     <p className="truncate text-sm text-gray-500 dark:text-gray-400">{contact.subject}</p>
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">{new Date(contact.submissionDate).toISOString().split('T')[0]}</div>
@@ -305,7 +302,8 @@ export function DashContacts(){
           
         </Modal.Body>
         <Modal.Footer className="flex flex-col items-start">
-          <form className="w-full mb-3" onClick={handleContactRespond}>
+          <form onSubmit={handleContactRespond} className="w-full">
+          <div className="mb-3">
           <ReactQuill
           theme='snow'
           placeholder='Write something...'
@@ -315,15 +313,16 @@ export function DashContacts(){
             setContactResponse(value);
           }}
         />
-          </form>
+          </div>
           {error  && <Alert color="failure" className="min-w-full mb-2">{error}</Alert>}
 
           <div className="flex flex-row gap-2">
-          <Button color="success" onClick={respondContact}>Respond</Button>
+          <Button color="success" type="submit">Respond</Button>
           <Button color="failure" onClick={()=>handleDelete()}>
             Delete
           </Button>
           </div>
+          </form>
         </Modal.Footer>
       </Modal>
         </div>
