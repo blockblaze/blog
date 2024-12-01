@@ -91,7 +91,7 @@ export const registEmail = (req, res) => {
       }
     });
   }catch(error){
-    res.status(500).json({sucess:false,statusCode:500,message:"Internal server error!"})
+    res.status(500).json({success:false,statusCode:500,message:"Internal server error!"})
   }
 
 };

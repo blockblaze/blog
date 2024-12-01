@@ -56,16 +56,16 @@ res.status(500).json({
 export const sendContact  = (req,res)=>{
   try{
     let {name , email , subject , message} = req.body;
-    if(!name || !email || !subject || !message) return res.status(400).json({sucess:false,statusCode:400,message:"All fields are required"})
+    if(!name || !email || !subject || !message) return res.status(400).json({success:false,statusCode:400,message:"All fields are required"})
       const addQuery = "INSERT INTO contacts(contact_name,contact_email,subject,message) VALUES(?,?,?,?)"
       const addQueryValues = [name,email,subject,message];
   
       dbconnection.query(addQuery,addQueryValues,(err,addResult)=>{
-        if(err) return res.status(500).json({sucess:false,statusCode:500,message:"Error happened while sending contact."})
-          res.status(200).json({sucess:true,statusCode:200,message:"Your contact has been sent successfully."})
+        if(err) return res.status(500).json({success:false,statusCode:500,message:"Error happened while sending contact."})
+          res.status(200).json({success:true,statusCode:200,message:"Your contact has been sent successfully."})
       })
   }catch(error){
-    res.status(500).json({sucess:false,statusCode:500,message:"Internal server error!"})
+    res.status(500).json({success:false,statusCode:500,message:"Internal server error!"})
   }
 
 }
@@ -73,7 +73,7 @@ export const sendContact  = (req,res)=>{
 export const respondContact = async (req,res)=>{
   let contactId = req.body.contactId;
   let respone = req.body.response;
-  if(!contactId || !respone) return res.status(400).json({sucess:false,statusCode:400,message:"All fields are required."});
+  if(!contactId || !respone) return res.status(400).json({success:false,statusCode:400,message:"All fields are required."});
   try{
     //Get the email of the contact
     const getEmailQuery = "SELECT contact_email AS email FROM contacts WHERE contact_id = ?";

@@ -306,7 +306,7 @@ export function DashContacts(){
           <div className="mb-3">
           <ReactQuill
           theme='snow'
-          placeholder='Write something...'
+          placeholder='Write your response...'
           className='h-32 mb-12'
           required
           onChange={(value) => {
