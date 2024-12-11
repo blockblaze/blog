@@ -1,4 +1,4 @@
-import {Footer, TextInput } from 'flowbite-react';
+import {Footer } from 'flowbite-react';
 // import { Link } from 'react-router-dom';
 import { BsInstagram, BsTwitter, BsGithub, BsYoutube } from 'react-icons/bs';
 export default function FooterCom() {
@@ -40,7 +40,7 @@ export default function FooterCom() {
               </Footer.LinkGroup>
             </div>
           </div>
-          <div className='mt-5'>
+          {/* <div className='mt-5'>
 <form className="flex">
   <TextInput
     id="footer-email"
@@ -53,7 +53,7 @@ export default function FooterCom() {
     <button className="bg-custom-orange text-white p-2 m:p-3 hover:bg-custom-dark-orange font-medium text-sm">Subscribe</button>
 
 </form>
-          </div>
+          </div> */}
 
         </div>
         <Footer.Divider />

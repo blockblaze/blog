@@ -1,0 +1,25 @@
+[
+    {
+      "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/images%2FDALL%C2%B7E%202024-12-11%2016.18.33%20-%20A%20vibrant%20and%20eye-catching%20banner%20for%20a%20Minecraft-themed%20blog%20image%20slider.%20The%20banner%20should%20feature%20a%20colorful%20Minecraft%20Bedrock%20custom%20map%20with%20uni.webp?alt=media&token=37594327-d905-4bc0-b84a-a9c469d6b2fb",
+      "alt": "custom maps",
+      "title": "Custom Maps",
+      "description": "Minecraft maps from here.",
+      "buttonText": "Explore Maps",
+      "buttonLink": "/search?category=maps"
+    },
+    {
+        "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/images%2FDALL%C2%B7E%202024-12-11%2021.34.57%20-%20A%20visually%20captivating%20banner%20design%20representing%20Minecraft%20scripting%20using%20the%20Minecraft%20Script%20API.%20The%20image%20should%20feature%20a%20coding%20environment%20me.webp?alt=media&token=107166ed-cf3a-40de-99c8-7f7b1d09fd23",
+        "alt": "scripts",
+        "title": "Minecract Scripts",
+        "description": "Dive into the world of the Minecraft Script API, where coding meets gameplay. Customize experiences, automate tasks, and bring dynamic features to life in your blocky adventures.",
+        "buttonText": "Explore Scripts",
+        "buttonLink": "/search?category=scripts"
+      },{
+        "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/images%2FDALL%C2%B7E%202024-12-11%2016.18.33%20-%20A%20vibrant%20and%20eye-catching%20banner%20for%20a%20Minecraft-themed%20blog%20image%20slider.%20The%20banner%20should%20feature%20a%20colorful%20Minecraft%20Bedrock%20custom%20map%20with%20uni.webp?alt=media&token=37594327-d905-4bc0-b84a-a9c469d6b2fb",
+        "alt": "articles",
+        "title": "Articles & Tutoriales",
+        "description": "Want some tips or news about minecraft? Try this articles",
+        "buttonText": "Explore Articles",
+        "buttonLink": "/search?category=articles"
+      }
+  ]

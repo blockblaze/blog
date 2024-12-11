@@ -31,10 +31,10 @@ return result;
 }
 
   return (
-    <div className="max-w-sm">
+    <div className="max-w-80">
     <Card
-      className="hover:bg-[#f1c130] transition-all duration-150 hover:translate-y-[-1%]"
-      renderImage={() => <Link to={`/post/${post.slug}`}><img className="h-[250px] object-fill w-full rounded-t-md" src={post.thumbnailUrl} alt={post.slug} /></Link>}
+      className="card hover:bg-[#f1c130] transition-all duration-150 hover:translate-y-[-1%]"
+      renderImage={() => <Link to={`/post/${post.slug}`}><img className="h-[210px] object-fill w-full rounded-t-md" src={post.thumbnailUrl} alt={post.slug} /></Link>}
 
     >
       <Link to={`/post/${post.slug}`}>

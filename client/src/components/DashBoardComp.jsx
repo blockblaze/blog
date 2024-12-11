@@ -26,13 +26,11 @@ export default function DashboardComp() {
         const res = await fetch('/api/post/stats');
         const data = await res.json();
         if (res.ok) {
-          console.log(data.data)
           setTotalPosts(data.data.totalPosts)
           setLastMonthPosts(data.data.lastMonthPosts)
           setTopViewedPosts(data.data.topViewedPosts)
           setTotalViews(data.data.totalViews)
           setLastMonthViews(data.data.lastMonthViews)
-          console.log(topViewedPosts)
         }
       } catch (error) {
         console.log(error.message);

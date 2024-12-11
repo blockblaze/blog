@@ -38,7 +38,7 @@ function Header() {
                 {theme === "light"? <FaMoon/>:<FaSun/> }
             </Button>
             <Link to="/about">
-            <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium hidden sm:inline">About</button>
+            {/* <button className="bg-custom-orange text-white p-2 m:p-3 rounded hover:bg-custom-dark-orange font-medium hidden sm:inline">About</button> */}
                 {/* <Button className="bg-custom-orange hover:!bg-custom-dark-orange">ABOUT ME</Button> */}
             </Link>
             <Navbar.Toggle/>
@@ -53,17 +53,7 @@ function Header() {
       Home
     </Link>
   </Navbar.Link>
-
-  <Navbar.Link
-    active={path === "/content"}
-    className={path === "/content" ? "!text-custom-dark-orange bg-inherit" : ""}
-    as={'div'} // Use 'div' instead of 'a'
-  >
-    <Link to="/content" className="hover:text-custom-dark-orange">
-      My Content
-    </Link>
-  </Navbar.Link>
-
+  
   <Navbar.Link
     active={path === "/contact"}
     className={path === "/contact" ? "!text-custom-dark-orange bg-inherit" : ""}
@@ -73,6 +63,18 @@ function Header() {
       Contact
     </Link>
   </Navbar.Link>
+
+  <Navbar.Link
+    active={path === "/about"}
+    className={path === "/about" ? "!text-custom-dark-orange bg-inherit" : ""}
+    as={'div'} // Use 'div' instead of 'a'
+  >
+    <Link to="/about" className="hover:text-custom-dark-orange">
+      About
+    </Link>
+  </Navbar.Link>
+
+
 </Navbar.Collapse>
 
 
