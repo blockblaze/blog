@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from 'cookie-parser';
+import path from 'path';
+
 
 
 import { dbconnection } from "./config/dbconnect.js";
@@ -11,8 +13,11 @@ import postRoute from "./routes/post.route.js"
 import rateRoute from "./routes/rates.js";
 const app = express();
 const port = 3000;
+const __dirname = path.resolve();
+
 
 dbconnection.connect();
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,6 +28,11 @@ app.use("/api",registRoute)
 app.use("/api",authRoute)
 app.use("/api",rateRoute)
 app.use("/api/post",postRoute)
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 // Start the server
 app.listen(port, (error) => {
