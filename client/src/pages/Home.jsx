@@ -62,7 +62,7 @@ function Home() {
             {/* Overlay Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 text-white p-4 text-center">
               <h2 className="text-2xl font-bold">{slide.title}</h2>
-              <p className="mt-2 text-sm ">{slide.description}</p>
+              <p className="mt-2 md:text-sm w-[80%] text-xs">{slide.description}</p>
               <a
                 href={slide.buttonLink}
                 className="mt-4 px-4 py-2 bg-transparent border-gray-200 border-2 text-white rounded-lg  focus:outline-none"

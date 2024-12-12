@@ -35,7 +35,7 @@ function Contact() {
             <div className="w-96 flex flex-col gap-3">
           <h1 className="font-bold text-5xl text-center">Contact Me</h1>
     <p className="text-lg">
-    If you have any questions or suggestions, you can contact me via this form or via <a href="https://twitter.com/@BlockBlazeXD" target="_parent" className="text-custom-dark-orange font-bold">my Twitter account</a>.
+    If you have any questions or suggestions, you can contact me via this form or via <a href="https://twitter.com/@BlockBlazeXD" target="_blank" className="text-custom-dark-orange font-bold">my Twitter account</a>.
     </p>
     </div>
           <form className="flex flex-col gap-4 py-7 w-96" onSubmit={handleSubmit}>

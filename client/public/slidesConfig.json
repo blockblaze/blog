@@ -1,24 +1,24 @@
 [
     {
-      "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/images%2FDALL%C2%B7E%202024-12-11%2016.18.33%20-%20A%20vibrant%20and%20eye-catching%20banner%20for%20a%20Minecraft-themed%20blog%20image%20slider.%20The%20banner%20should%20feature%20a%20colorful%20Minecraft%20Bedrock%20custom%20map%20with%20uni.webp?alt=media&token=37594327-d905-4bc0-b84a-a9c469d6b2fb",
+      "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/assets%2FDALL%C2%B7E%202024-12-12%2023.22.36%20-%20A%20dynamic%20and%20colorful%20banner%20design%20showcasing%20Minecraft%20custom%20maps%20focused%20on%20minigames%20like%20PvP%20battles%2C%20Eggwars%2C%20Lucky%20Block%20challenges%2C%20and%20Surv.webp?alt=media&token=1c22a244-cd09-47bd-ab91-2514cd80fea0",
       "alt": "custom maps",
       "title": "Custom Maps",
-      "description": "Minecraft maps from here.",
+      "description": "Explore thrilling custom maps filled with excitement and challenges! From intense PvP arenas to strategic Eggwars, unpredictable Lucky Block adventures, and classic Survival Games.",
       "buttonText": "Explore Maps",
       "buttonLink": "/search?category=maps"
     },
     {
-        "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/images%2FDALL%C2%B7E%202024-12-11%2021.34.57%20-%20A%20visually%20captivating%20banner%20design%20representing%20Minecraft%20scripting%20using%20the%20Minecraft%20Script%20API.%20The%20image%20should%20feature%20a%20coding%20environment%20me.webp?alt=media&token=107166ed-cf3a-40de-99c8-7f7b1d09fd23",
+        "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/assets%2FDALL%C2%B7E%202024-12-11%2021.34.57%20-%20A%20visually%20captivating%20banner%20design%20representing%20Minecraft%20scripting%20using%20the%20Minecraft%20Script%20API.%20The%20image%20should%20feature%20a%20coding%20environment%20me.webp?alt=media&token=08f7410e-f4fb-4264-84d4-94fa417178f7",
         "alt": "scripts",
         "title": "Minecract Scripts",
         "description": "Dive into the world of the Minecraft Script API, where coding meets gameplay. Customize experiences, automate tasks, and bring dynamic features to life in your blocky adventures.",
         "buttonText": "Explore Scripts",
         "buttonLink": "/search?category=scripts"
       },{
-        "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/images%2FDALL%C2%B7E%202024-12-11%2016.18.33%20-%20A%20vibrant%20and%20eye-catching%20banner%20for%20a%20Minecraft-themed%20blog%20image%20slider.%20The%20banner%20should%20feature%20a%20colorful%20Minecraft%20Bedrock%20custom%20map%20with%20uni.webp?alt=media&token=37594327-d905-4bc0-b84a-a9c469d6b2fb",
-        "alt": "articles",
+        "image": "https://firebasestorage.googleapis.com/v0/b/personal-blog-8ea87.appspot.com/o/assets%2FDALL%C2%B7E%202024-12-12%2023.24.49%20-%20A%20visually%20engaging%20banner%20representing%20a%20variety%20of%20Minecraft%20blog%20topics%2C%20including%20scripting%2C%20custom%20maps%2C%20tutorials%2C%20and%20minigames.%20The%20image%20shou.webp?alt=media&token=16e592ce-44d6-4d84-83f9-ea0aec0e4e7c",
+        "alt": "Articles & Tutorials",
         "title": "Articles & Tutoriales",
-        "description": "Want some tips or news about minecraft? Try this articles",
+        "description": "Discover a world of creativity and knowledge in Minecraft! explore guides and insights to enhance your gameplay and unleash your imagination.",
         "buttonText": "Explore Articles",
         "buttonLink": "/search?category=articles"
       }

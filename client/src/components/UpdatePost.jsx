@@ -291,7 +291,7 @@ export function UpdatePost() {
                 downloadables: prevState.downloadables.map((item, i) =>
                   i === prevState.downloadables.length - 1 ? { ...item, supportedVersions: e.target.value } : item)
               }))}}
-            value={formData.downloadables[formData.downloadables.length-1]?.supportedVersions || ''}
+            defaultValue={formData.downloadables[formData.downloadables.length-1]?.supportedVersions || ''}
            />
             <Textarea
             className="h-44"

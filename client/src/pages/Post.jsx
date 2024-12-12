@@ -168,6 +168,7 @@ function Post() {
             setLoading(false);
             setError("No post found");
           }else{
+            document.title = data[0].title;
             setLoading(false);
             setError(false);
             setPost(data[0]);

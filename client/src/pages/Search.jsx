@@ -34,8 +34,6 @@ function Search() {
 
       urlParams.set("q", searchTermFromUrl);
       const searchQuery = urlParams.toString();
-      console.log(searchQuery);
-
       try {
         const res = await fetch(`/api/post/getposts?${searchQuery}`);
         if (!res.ok) throw new Error("Failed to fetch posts");
@@ -79,7 +77,6 @@ function Search() {
     urlParams.set("q", searchTermFromUrl);
 
     const searchQuery = urlParams.toString();
-    console.log(searchQuery);
 
     try {
       const res = await fetch(`/api/post/getposts?${searchQuery}`);
