@@ -27,7 +27,7 @@ function Home() {
   },[]);
     return (
       <div className="min-h-screen">
-        <div className='flex flex-col gap-4 p-16 px-10 w-full bg-gray-200 dark:bg-gray-800 mx-auto mb-5 h-72' style={{backgroundImage: `url(https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fpixel-grey&psig=AOvVaw05smXvcmrZGEKb6-MMKeoB&ust=1733602247224000&source=images&cd=vfe&opi=89978449&ved=2ahUKEwjtlKXi-ZOKAxXeXkEAHaEQB58QjRx6BAgAEBk)`}}>
+        <div className='flex flex-col gap-4 p-16 px-10 w-full bg-gray-100 dark:bg-gray-800 mx-auto mb-5 h-72'>
         <h1 className='text-3xl font-bold lg:text-6xl dark:text-white'>Hey, I&apos;m BlockBlaze!</h1>
         <p className='dark:text-white text-sm sm:text-sm'>
         Explore the world of Minecraft Bedrock with me, a passionate maps and scripts creator.

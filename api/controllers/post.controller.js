@@ -28,6 +28,10 @@ export const getposts = async (req, res) => {
     if (searchTerm) {
       postQuery += ` WHERE (p.title LIKE ? OR p.content LIKE ?)`;
       params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+      if(req.query.category){
+        postQuery += ` AND p.category = ?`;
+        params.push(req.query.category);
+      }
     } else {
       // Filter conditions if search term is not provided
       if (req.query.postId) {

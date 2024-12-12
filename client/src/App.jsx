@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Header from "./components/Header";
 import FooterCom from "./components/Footer";
 import Post from "./pages/Post"
+import Search from "./pages/Search";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
   <Routes>
     <Route path="/" element={<Home/>}/>
     <Route path="/about" element={<About/>}/>
+    <Route path="/search" element={<Search/>}/>
     <Route path="/privacy" element={<Privacy/>}/>
     <Route path="/content" element={<Content/>}/>
     <Route path="/contact" element={<Contact/>}/>

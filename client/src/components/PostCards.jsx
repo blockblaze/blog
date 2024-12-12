@@ -16,7 +16,7 @@ export function PostCardSm({post}) {
         {post.title}
       </h5>
       <p className="font-normal text-xs text-gray-700 dark:text-gray-400 line-clamp-3 ">
-      {new Date(post.updatedDATE).toDateString()}
+      {post.category.charAt(0).toUpperCase() + post.category.slice(1)}
       </p>
     </Card>
     </Link>
