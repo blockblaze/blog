@@ -52,7 +52,7 @@ function Header() {
 
             />
         </form>
-        <Button className="w-12 h-10 lg:hidden" color="gray" pill>
+        <Button className="w-12 h-10 lg:hidden" color="gray" pill onClick={()=>navigate("/search")}>
             <AiOutlineSearch></AiOutlineSearch>
         </Button>
         <div className="flex gap-3 md:order-2">

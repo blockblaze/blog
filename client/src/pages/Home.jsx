@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {PostCard} from "../components/PostCards";
 import { Carousel } from "flowbite-react";
 import { MdOutlineDoubleArrow } from "react-icons/md";
+import { Helmet } from "react-helmet-async";
 
 
 
@@ -26,6 +27,12 @@ function Home() {
     fetchSlides();
   },[]);
     return (
+      <>
+      <Helmet>
+        <title>BlockBlaze</title>
+        <meta name="description" content="Welcome to My Blog. Explore the best content on Minecraft and more!" />
+        <meta name="keywords" content="Minecraft, Blog, Tutorials, Gaming, Maps, Scripts" />
+      </Helmet>
       <div className="min-h-screen">
         <div className='flex flex-col gap-4 p-16 px-10 w-full bg-gray-100 dark:bg-gray-800 mx-auto mb-5 h-72'>
         <h1 className='text-3xl font-bold lg:text-6xl dark:text-white'>Hey, I&apos;m BlockBlaze!</h1>
@@ -96,6 +103,7 @@ function Home() {
         )}
 
       </div>
+      </>
     )
   }
   

@@ -6,6 +6,7 @@ import { MdOutlineDoubleArrow } from "react-icons/md";
 import {PostCardSm} from "../components/PostCards";
 import { useSelector  , useDispatch } from "react-redux";
 import { addDownloads, addRatedPost, addVisitedPost } from "../redux/user/userActivitySlice";
+import { Helmet } from 'react-helmet-async';
 
 
 
@@ -152,6 +153,11 @@ function Post() {
       }
   }
 
+const clearHtml = (html)=>{
+    const regex = /(<([^>]+)>)/gi;
+const result = html.replace(regex, "");
+return result;
+}
   useEffect(() => {
     try{
       const getPost = async () => {
@@ -168,7 +174,6 @@ function Post() {
             setLoading(false);
             setError("No post found");
           }else{
-            document.title = data[0].title;
             setLoading(false);
             setError(false);
             setPost(data[0]);
@@ -207,6 +212,19 @@ function Post() {
 
 
   return (
+    <>
+      <Helmet>
+        <title>{post.title}</title>
+        <meta name="description" content={clearHtml(post.content)} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={clearHtml(post.content)} />
+        <meta property="og:image" content={post.thumbnailUrl} />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={clearHtml(post.content)} />
+        <meta name="twitter:image" content={post.thumbnailUrl} />
+      </Helmet>
     <div className="flex justify-between min-h-screen w-full md:w-[90%] m-auto">
       <main className="flex flex-col p-8 w-full bg-gray-100 dark:bg-gray-700">
         <h1 className="text-3xl mt-10 p-3 text-center font-serif max-w-2xl mx-auto lg:text-4xl">
@@ -429,6 +447,7 @@ function Post() {
       </main>
       <aside className="bg-gray-200 md:w-80 dark:bg-gray-800 hidden md:block lg:w-96 "></aside>
     </div>
+    </>
   );
 }
 
