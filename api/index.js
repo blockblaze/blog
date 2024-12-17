@@ -12,7 +12,7 @@ import authRoute from "./routes/auth.route.js"
 import postRoute from "./routes/post.route.js"
 import rateRoute from "./routes/rates.js";
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const __dirname = path.resolve();
 
 
