@@ -18,6 +18,7 @@ const __dirname = path.resolve();
 
 dbconnection.connect();
 
+app.set('trust proxy', 1)
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
